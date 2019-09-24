@@ -5,6 +5,7 @@ import java.util.logging.Logger
 
 class Data {
     companion object {
+        var markdownFileName = "RREAME.md"
         var mkFile: File? = null
         val lineData by lazy {
             loadLines()
@@ -20,7 +21,7 @@ class Data {
 //                        file.isFile && file.extension in listOf("md")
 //                    }
                     .forEach { file ->
-                        if (file.extension == "md") {
+                        if (file.extension == "md" && file.name == markdownFileName) {
                             val lines = file.readLines()
                             mkFile = file.parentFile
                             return LineData(lines)

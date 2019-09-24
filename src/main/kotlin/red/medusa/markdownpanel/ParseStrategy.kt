@@ -83,7 +83,7 @@ enum class ParseStrategy {
     },
     THREE_PMS {
         override fun lookFor() {
-            if (Regex("""^\s*(\*\*\*)|(\+\+\+)|(---)""").containsMatchIn(
+            if (Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""").containsMatchIn(
                     Data.lineData.line.text.replace(
                         "\\s".toRegex(),
                         ""
@@ -121,12 +121,12 @@ enum class ParseStrategy {
                 Data.lineData.clean()
                 Data.lineData.makeUp(TagParse.TagType.UNORDERED_LIST)
                 log("* -> ${TagParse.TagType.UNORDERED_LIST}")
-            } else BRACKET.lookFor()
+            } else PARAGRAPH.lookFor()
         }
     },
     BRACKET {
         override fun lookFor() {
-            if (Regex("""^\s*\[""").containsMatchIn(Data.lineData.line.text)) {
+            if (Regex("""^\s*\[(?!alt)(.*)]\((.*)\)\s*$""").containsMatchIn(Data.lineData.line.text)) {
                 Data.lineData.clean()
                 Data.lineData.makeUp(TagParse.InlineTagType.LINK)
                 log(TagParse.InlineTagType.LINK.name)
@@ -134,8 +134,9 @@ enum class ParseStrategy {
         }
     },
     EXCLAMATION_BRACKET {
+        private val subRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
         override fun lookFor() {
-            if (Regex("""\s*^!\[alt""").containsMatchIn(Data.lineData.line.text)) {
+            if (Regex("""^\s*!\[(alt(.*))?]\($subRegex\s*(\s"(.*)"\s*)?\)$""").containsMatchIn(Data.lineData.line.text)) {
                 Data.lineData.clean()
                 Data.lineData.makeUp(TagParse.InlineTagType.IMAGE)
                 log(TagParse.InlineTagType.IMAGE.name)
@@ -144,7 +145,7 @@ enum class ParseStrategy {
     },
     ANGLE_BRACKETS {
         override fun lookFor() {
-            if (Regex("""\s*^<.+>""").containsMatchIn(Data.lineData.line.text)) {
+            if (Regex("""\s*^<.+>$""").containsMatchIn(Data.lineData.line.text)) {
                 Data.lineData.clean()
                 Data.lineData.makeUp(TagParse.InlineTagType.LINK)
                 log(TagParse.InlineTagType.LINK.name)
@@ -159,6 +160,7 @@ enum class ParseStrategy {
         }
     },
     ;
+
 
     private val logger = Logger.getLogger(this.javaClass.name)!!
 

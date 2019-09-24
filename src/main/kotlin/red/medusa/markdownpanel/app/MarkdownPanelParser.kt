@@ -62,7 +62,13 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
         panels.clear()
         lines.forEach {
             when (it.tagParse) {
+                TagParse.TagType.PARAGRAPH -> {
+                    it.tagParse.maybeNeedFlushChunked()
+                    startChunked(it)
+                    chunked.append(it.text.trim())
+                }
                 TagParse.TagType.CODE_AREA_1 -> {
+                    it.tagParse.maybeNeedFlushChunked()
                     startChunked(it)
                     appendChunked(it.text)
                 }
@@ -74,22 +80,23 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
                         flushChunked()
                     }
                 }
-                TagParse.TagType.LINEFEED ->
+                TagParse.TagType.LINEFEED -> {
                     // 上一次已经有换行了就不换了
                     if (lastLinefeed?.tagParse != TagParse.TagType.LINEFEED) {
                         addPanel(it)
                     }
+                }
                 else -> {
                     if (isChunkedRunning())
                         flushChunked()
-
-                    if (it.tagParse == TagParse.TagType.PARAGRAPH)
-                        addPanelForParagraph(it)
                     else
                         addPanel(it)
                 }
             }
+
         }
+        if (isChunkedRunning())
+            flushChunked()
         return panels
     }
 
@@ -126,6 +133,11 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
         endChunked()
     }
 
+    private fun TagParse.maybeNeedFlushChunked() {
+        if (this != chunkedTagParse && isChunkedRunning())
+            flushChunked()
+    }
+
     private fun addPanel(
         segment: KClass<*>,
         text: String,
@@ -158,7 +170,6 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
 
     private fun addPanelForParagraph(line: Line) {
         if (
-//            lastLinefeed?.tagParse != TagParse.TagType.BLANK &&
             lastLinefeed?.tagParse != TagParse.TagType.LINEFEED &&
             lastLinefeed?.tagParse != TagParse.TagType.PARAGRAPH
         ) {
@@ -176,18 +187,21 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
 }
 
 class MarkdownPanel : View() {
-    private val WIDTH = 950.0
-    private val HEIGTH = 800.0
-    private val parser =
-        MarkdownPanelParser(Data.lineData.lines.values)
+    companion object {
+        val WIDTH = 950.0
+        val HEIGTH = 800.0
+    }
+
+    private val parser = MarkdownPanelParser(Data.lineData.lines.values)
 
     override val root =
         scrollpane {
             vbox {
-                setPrefSize(WIDTH, HEIGTH)
-                addClass(Styles.MarkdownPanel)
-                hgrow = Priority.ALWAYS
+
+                prefWidth = WIDTH
                 useMaxSize = true
+                hgrow = Priority.ALWAYS
+                vgrow = Priority.ALWAYS
                 while (Data.lineData.hasMore()) {
                     Data.lineData.preNext()
                     Data.lineData.parseStrategy.lookFor()
@@ -196,10 +210,14 @@ class MarkdownPanel : View() {
                 parser.produceView().forEach {
                     it.attachTo(this)
                 }
+                subscribe<OpenWindowForHyperlink> { event ->
+                    hostServices.showDocument(event.url)
+                }
             }
         }
 
     init {
+        root.setPrefSize(WIDTH, HEIGTH)
         importStylesheet(Styles::class)
         reloadStylesheetsOnFocus()
     }
@@ -209,8 +227,9 @@ class MarkdownPanelApp : App(MarkdownPanel::class)
 
 fun main() {
 
-    //  Debug
-    //  Profile.TEST = false
+//    Debug
+//    Profile.TEST = false
+//    Data.markdownFileName = "RREAME.md"
     launch<MarkdownPanelApp>()
 }
 

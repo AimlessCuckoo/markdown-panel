@@ -5,8 +5,10 @@ import red.medusa.markdownpanel.Data
 
 class MarkdownTest {
 
+
     @Test
     fun strategyTest() {
+        Data.markdownFileName = "RREAME.md"
         while (Data.lineData.hasMore()) {
             Data.lineData.preNext()
             Data.lineData.parseStrategy.lookFor()

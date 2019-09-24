@@ -7,7 +7,6 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
-        val MarkdownPanel by cssclass()
         val lineNumber by cssclass()
         val bold by cssclass()
         val OneTitleSegment by cssclass()
@@ -29,14 +28,22 @@ class Styles : Stylesheet() {
             fontWeight = FontWeight.BOLD
             padding = box(0.2.em, 0.em)
         }
+        val FONT_SIZE = 18.0
+        val baseMixin = mixin {
+            baseColor = c("353535")
+            fontSize = FONT_SIZE.px
+        }
     }
 
     init {
-        root{
-            baseColor = c("353535")
-            fontSize = 18.px
+        root {
+            +baseMixin
         }
+        ParagraphSegment {
+//            textAlignment = TextAlignment.LEFT
+//            alignment = Pos.TOP_LEFT
 
+        }
         lineNumber {
             alignment = Pos.CENTER_RIGHT
         }
@@ -86,7 +93,7 @@ class Styles : Stylesheet() {
             backgroundColor += c("23241f")
         }
         CoderAreaColor {
-            fill =  c("47dfc5")
+            fill = c("47dfc5")
         }
 
     }

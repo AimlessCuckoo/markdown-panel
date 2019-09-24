@@ -123,7 +123,6 @@ class CodeArea1Line : ViewLine {
     }
 }
 
-
 class CodeArea2Line : ViewLine {
     override fun create(line: Line) {
         super.create(line)
@@ -138,11 +137,12 @@ class ParagraphLine : ViewLine {
     }
 }
 
+
 class ImageLine : ViewLine {
     override fun create(line: Line) {
         super.create(line)
         //![alt 属性文本](图片地址)
-        val regex = """!\[alt( .*)?]\(([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)( ".*")?\)""".toRegex()
+        val regex = """^!\[alt( .*)?]\(([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)( ".*")?\)$""".toRegex()
         regex.find(line.text)?.destructured?.apply {
             if (line.inlineText == null)
                 line.inlineText = InlineText()
@@ -153,28 +153,21 @@ class ImageLine : ViewLine {
     }
 }
 
-fun main() {
-     val preRegex = """\s*^\[""".toRegex()
-    if( preRegex.containsMatchIn("[链接名称](www.google.com)")){
-        println("1")
-    }else{
-      println("2")
-    }
-}
+
 class LinkLine : ViewLine {
     private val preRegex = """\s*^\[""".toRegex()
-    private val regex1 = """\[(.*)]\((.*)\)""".toRegex()
-    private val regex2 = """<(.+)>""".toRegex()
+    private val regex1 = """^\[(.*)]\((.*)\)$""".toRegex()
+    private val regex2 = """^<(.+)>$""".toRegex()
     override fun create(line: Line) {
-//        super.create(line)
-       if(preRegex.containsMatchIn(line.text)){
-           create1(line)
-       }else{
-           create2(line)
-       }
+        if (preRegex.containsMatchIn(line.text)) {
+            create1(line)
+        } else {
+            create2(line)
+        }
 
     }
-     private fun create1(line: Line) {
+
+    private fun create1(line: Line) {
         super.create(line)
         regex1.find(line.text)?.destructured?.apply {
             if (line.inlineText == null)
@@ -187,7 +180,7 @@ class LinkLine : ViewLine {
 
     private fun create2(line: Line) {
         super.create(line)
-         regex2.find(line.text)?.destructured?.apply {
+        regex2.find(line.text)?.destructured?.apply {
             if (line.inlineText == null)
                 line.inlineText = InlineText()
             line.inlineText?.linkUrl = component1()
@@ -195,7 +188,6 @@ class LinkLine : ViewLine {
         line.segmentView = LinkSegment::class
     }
 }
-
 
 class ItalicsLine : ViewLine {
     override fun create(line: Line) {
@@ -216,10 +208,6 @@ class BoldItalicsLine : ViewLine {
         super.create(line)
     }
 }
- 
-
-
-
 
 
 
