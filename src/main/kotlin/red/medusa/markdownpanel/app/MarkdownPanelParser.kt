@@ -87,10 +87,10 @@ class MarkdownPanelParser(private var lines: Collection<Line>) {
                     }
                 }
                 else -> {
-                    if (isChunkedRunning())
+                    if (isChunkedRunning()) {
                         flushChunked()
-                    else
-                        addPanel(it)
+                    }
+                    addPanel(it)
                 }
             }
 
