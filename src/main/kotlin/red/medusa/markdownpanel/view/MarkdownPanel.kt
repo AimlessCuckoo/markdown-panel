@@ -4,6 +4,7 @@ import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.app.MyApp.Companion.HEIGHT
 import red.medusa.markdownpanel.app.MyApp.Companion.WIDTH
 import red.medusa.markdownpanel.model.MKFileModel
+import red.medusa.markdownpanel.service.MarkdownPanelParser
 import tornadofx.*
 
 class MarkdownPanelFragment : Fragment() {

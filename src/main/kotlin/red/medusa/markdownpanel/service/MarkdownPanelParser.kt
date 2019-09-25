@@ -1,8 +1,9 @@
-package red.medusa.markdownpanel.view
+package red.medusa.markdownpanel.service
 
 import javafx.scene.layout.VBox
 import red.medusa.markdownpanel.Line
 import red.medusa.markdownpanel.TagParse
+import red.medusa.markdownpanel.view.*
 import tornadofx.add
 import tornadofx.clear
 import kotlin.collections.set
