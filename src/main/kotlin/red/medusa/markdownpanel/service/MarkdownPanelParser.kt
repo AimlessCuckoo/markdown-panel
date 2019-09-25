@@ -15,35 +15,25 @@ class MarkdownPanelParser {
         private val segmentViews = mutableMapOf<KClass<*>, Segment>().apply {
             this[OneTitleSegment::class] = OneTitleSegment()
             this[TowTitleSegment::class] = TowTitleSegment()
-            this[ThreeTitleSegment::class] =
-                ThreeTitleSegment()
-            this[FourTitleSegment::class] =
-                FourTitleSegment()
-            this[FiveTitleSegment::class] =
-                FiveTitleSegment()
+            this[ThreeTitleSegment::class] = ThreeTitleSegment()
+            this[FourTitleSegment::class] = FourTitleSegment()
+            this[FiveTitleSegment::class] = FiveTitleSegment()
             this[SixTitleSegment::class] = SixTitleSegment()
 
             this[BlankSegment::class] = BlankSegment()
             this[LinefeedSegment::class] = LinefeedSegment()
 
-            this[SeparatorSegment::class] =
-                SeparatorSegment()
+            this[SeparatorSegment::class] = SeparatorSegment()
 
             this[OrderedSegment::class] = OrderedSegment()
-            this[UnOrderedSegment::class] =
-                UnOrderedSegment()
-            this[NestOrderedSegment::class] =
-                NestOrderedSegment()
-            this[NestUnOrderedSegment::class] =
-                NestUnOrderedSegment()
+            this[UnOrderedSegment::class] = UnOrderedSegment()
+            this[NestOrderedSegment::class] = NestOrderedSegment()
+            this[NestUnOrderedSegment::class] = NestUnOrderedSegment()
 
-            this[ParagraphSegment::class] =
-                ParagraphSegment()
+            this[ParagraphSegment::class] = ParagraphSegment()
 
-            this[CodeArea1Segment::class] =
-                CodeArea1Segment()
-            this[CodeArea2Segment::class] =
-                CodeArea2Segment()
+            this[CodeArea1Segment::class] = CodeArea1Segment()
+            this[CodeArea2Segment::class] = CodeArea2Segment()
 
             this[LinkSegment::class] = LinkSegment()
             this[ImageSegment::class] = ImageSegment()
@@ -54,7 +44,7 @@ class MarkdownPanelParser {
     private var chunkedStart = false
     private var chunkedRunning = false
     private var chunkedTagSegment: KClass<*> = ParagraphSegment::class
-    private val markdownPanel  = VBox()
+    private val markdownPanel = VBox()
 
     private val chunked: StringBuilder = StringBuilder()
 
