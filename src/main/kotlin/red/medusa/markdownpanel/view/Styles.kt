@@ -38,12 +38,12 @@ class Styles : Stylesheet() {
 
     init {
         root {
-            +baseMixin
+
         }
         ParagraphSegment {
 //            textAlignment = TextAlignment.LEFT
 //            alignment = Pos.TOP_LEFT
-
+            +baseMixin
         }
         lineNumber {
             alignment = Pos.CENTER_RIGHT

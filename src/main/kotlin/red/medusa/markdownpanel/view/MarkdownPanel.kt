@@ -38,6 +38,8 @@ class MarkdownPanelFragment : Fragment() {
         subscribeHyperlinkEvent()
 
         vvalue = 0.0
+
+        addClass(Styles.ParagraphSegment)
     }
 
     private fun Component.subscribeHyperlinkEvent() {
