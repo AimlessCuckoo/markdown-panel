@@ -1,7 +1,10 @@
 package red.medusa.markdownpanel.view
 
-import javafx.scene.layout.Pane
-import red.medusa.markdownpanel.*
+import javafx.scene.layout.VBox
+import red.medusa.markdownpanel.Line
+import red.medusa.markdownpanel.TagParse
+import tornadofx.add
+import tornadofx.clear
 import kotlin.collections.set
 import kotlin.reflect.KClass
 
@@ -50,7 +53,7 @@ class MarkdownPanelParser {
     private var chunkedStart = false
     private var chunkedRunning = false
     private var chunkedTagSegment: KClass<*> = ParagraphSegment::class
-    private val panels = mutableListOf<Pane>()
+    private val markdownPanel  = VBox()
 
     private val chunked: StringBuilder = StringBuilder()
 
@@ -60,8 +63,8 @@ class MarkdownPanelParser {
     /**
      * 生成 TornadoFX面板
      */
-    fun produceView(lines: Collection<Line>): List<Pane> {
-        panels.clear()
+    fun produceView(lines: Collection<Line>): VBox {
+        markdownPanel.clear()
         lines.forEach {
             when (it.tagParse) {
                 TagParse.TagType.PARAGRAPH -> {
@@ -94,7 +97,7 @@ class MarkdownPanelParser {
         }
         if (isChunkedRunning())
             flushChunked()
-        return panels
+        return markdownPanel
     }
 
     /**
@@ -162,13 +165,13 @@ class MarkdownPanelParser {
         postfix: String? = null,
         lineNumber: Int? = null
     ) {
-        segmentViews[segment]?.getSegment(text, prefix, postfix, lineNumber).apply { panels.add(this!!) }
+        segmentViews[segment]?.getSegment(text, prefix, postfix, lineNumber).apply { markdownPanel.add(this!!) }
     }
 
     private fun addPanel(line: Line) {
 
         segmentViews[line.segmentView]?.getSegment(line.text, line.prefix, line.postfix, line.number, line.inlineText)
-            ?.apply { panels.add(this) }
+            ?.apply { markdownPanel.add(this) }
 
         lastLinefeed = line
     }

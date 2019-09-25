@@ -1,15 +1,12 @@
 package red.medusa.markdownpanel.view
 
 import red.medusa.markdownpanel.Data
+import red.medusa.markdownpanel.app.MyApp.Companion.HEIGHT
+import red.medusa.markdownpanel.app.MyApp.Companion.WIDTH
 import red.medusa.markdownpanel.model.MKFileModel
 import tornadofx.*
 
 class MarkdownPanelFragment : Fragment() {
-
-    companion object {
-        val WIDTH = 950.0
-        val HEIGTH = 800.0
-    }
 
     private val fileModel: MKFileModel by inject()
 
@@ -18,28 +15,28 @@ class MarkdownPanelFragment : Fragment() {
     private val parser = MarkdownPanelParser()
 
     override val root = scrollpane {
+        /**
+         * 构建Markdown 节点
+         */
+        mkContent
+            .prepared()
+            .parse()
+
+        /**
+         * 构建TornadoFX View
+         */
+        val markdownPanel = parser.produceView(mkContent.getLines())
+
         prefWidth = WIDTH
-        prefHeight = HEIGTH
+        prefHeight = HEIGHT
 
         isFitToHeight = true
         isFitToWidth = true
-        content = vbox {
-            /**
-             * 构建Markdown 节点
-             */
-            mkContent
-                .prepared()
-                .parse()
+        content = markdownPanel
 
-            /**
-             * 构建TornadoFX View
-             */
-            parser.produceView(mkContent.getLines()).forEach {
-               this.add(it)
-            }
-            // 点击超链接可打开游览器
-            subscribeHyperlinkEvent()
-        }
+        //点击超链接可打开游览器
+        subscribeHyperlinkEvent()
+
         vvalue = 0.0
     }
 

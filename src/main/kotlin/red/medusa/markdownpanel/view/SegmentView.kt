@@ -9,7 +9,6 @@ import javafx.scene.paint.Color
 import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.InlineText
 import red.medusa.markdownpanel.pt
-import red.medusa.markdownpanel.view.MarkdownPanelFragment.Companion.WIDTH
 import tornadofx.*
 import java.io.File
 import java.io.FileInputStream
@@ -360,7 +359,7 @@ class ParagraphSegment : Segment() {
         str.debug()
         return hbox {
             flowpane {
-                prefWidth = WIDTH
+                hgrow = Priority.ALWAYS
                 alignment = Pos.BASELINE_LEFT
                 addClass(Styles.ParagraphSegment)
                 val contents = str.parseMe()
