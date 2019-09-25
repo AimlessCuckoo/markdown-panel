@@ -4,175 +4,195 @@ import java.util.logging.Logger
 
 enum class ParseStrategy {
     DOUBLE_LINEFEED {
-        override fun lookFor() {
-            if (lastWithCurrentLineIsBlank()) {
-                log(TagParse.TagType.LINEFEED.name)
-                Data.lineData.makeUp(TagParse.TagType.LINEFEED)
-                Data.lineData.clean()
+        override fun lookFor(lineData: LineData) {
+            if (lineData.lastWithCurrentLineIsBlank()) {
+                lineData.log(TagParse.TagType.LINEFEED.name)
+                lineData.makeUp(TagParse.TagType.LINEFEED)
+                lineData.clean()
             } else
-                LINEFEED.lookFor()
+                LINEFEED.lookFor(lineData)
         }
     },
     LINEFEED {
-        override fun lookFor() {
-            return if (lineIsBlank(Data.lineData.line.text)) {
-                log(TagParse.TagType.BLANK.name)
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.TagType.BLANK)
-            } else OVER_FOUR_BLANK_SPACE.lookFor()
+        override fun lookFor(lineData: LineData) {
+            return if (lineIsBlank(lineData.line.text)) {
+                lineData.log(TagParse.TagType.BLANK.name)
+                lineData.clean()
+                lineData.makeUp(TagParse.TagType.BLANK)
+            } else NEST_UNSORTED_LIST.lookFor(lineData)
+        }
+    },
+    NEST_UNSORTED_LIST {
+        override fun lookFor(lineData: LineData) {
+            return if (nestUnsortedListRegex.containsMatchIn(lineData.line.text) && lineData.isNestList()) {
+                lineData.log(TagParse.TagType.NEST_UNSORTED_LIST.name)
+                lineData.clean()
+                lineData.makeUp(TagParse.TagType.NEST_UNSORTED_LIST)
+            } else NEST_ORDERED_LIST.lookFor(lineData)
+        }
+    },
+    NEST_ORDERED_LIST {
+        override fun lookFor(lineData: LineData) {
+            return if (nestOrderedListRegex.containsMatchIn(lineData.line.text) && lineData.isNestList()) {
+                lineData.log(TagParse.TagType.NEST_ORDERED_LIST.name)
+                lineData.clean()
+                lineData.makeUp(TagParse.TagType.NEST_ORDERED_LIST)
+            } else OVER_FOUR_BLANK_SPACE.lookFor(lineData)
         }
     },
     OVER_FOUR_BLANK_SPACE {     // 四个空格表示代码块
-        override fun lookFor() {
-            if (Regex("""^[ ]{4,}""").containsMatchIn(Data.lineData.line.text)) {
-                if (Data.lineData.parseStrategy != this) {
-                    Data.lineData.markStart(this)
-                    log("${TagParse.TagType.CODE_AREA_1} START - ${Data.lineData.line.number} - [ ${Data.lineData.line.text} ]")
+        override fun lookFor(lineData: LineData) {
+            if (overFourBlankSpaceRegex.containsMatchIn(lineData.line.text)) {
+                if (lineData.parseStrategy != this) {
+                    lineData.markStart(this)
+                    lineData.log("${TagParse.TagType.CODE_AREA_1} START - ${lineData.line.number} - [ ${lineData.line.text} ]")
                 }
-                Data.lineData.makeUp(TagParse.TagType.CODE_AREA_1)
-                log("${TagParse.TagType.CODE_AREA_1} HANDING - ${Data.lineData.line.number} - [ ${Data.lineData.line.text} ]")
+                lineData.makeUp(TagParse.TagType.CODE_AREA_1)
+                lineData.log("${TagParse.TagType.CODE_AREA_1} HANDING - ${lineData.line.number} - [ ${lineData.line.text} ]")
             } else {
                 //不做任何结束,直接找下一个匹配项
-                ANTI_POINTS.lookFor()
+                ANTI_POINTS.lookFor(lineData)
             }
         }
     },
     ANTI_POINTS {
-        override fun lookFor() {
-            if (Data.lineData.isRequireMultipleHandle && Data.lineData.parseStrategy == this) {
-                if ((Regex("""```$""").containsMatchIn(Data.lineData.line.text))) {
-                    log("${TagParse.TagType.CODE_AREA_2} END - ${Data.lineData.line.number} - [ ${Data.lineData.line.text} ]")
-                    Data.lineData.line.postfix = "```"
-                    Data.lineData.markEnd()
+        override fun lookFor(lineData: LineData) {
+            if (lineData.isRequireMultipleHandle && lineData.parseStrategy == this) {
+                if ((antiPointsPrefixRegex.containsMatchIn(lineData.line.text))) {
+                    lineData.log("${TagParse.TagType.CODE_AREA_2} END - ${lineData.line.number} - [ ${lineData.line.text} ]")
+                    lineData.line.postfix = "```"
+                    lineData.markEnd()
                 }
-                Data.lineData.makeUp(TagParse.TagType.CODE_AREA_2)
-                log("${TagParse.TagType.CODE_AREA_2} HANDING - ${Data.lineData.line.number} - [ ${Data.lineData.line.text} ]")
-                if (!Data.lineData.line.isLine) //   全部都没找到
-                    Data.lineData.markEnd()
+                lineData.makeUp(TagParse.TagType.CODE_AREA_2)
+                lineData.log("${TagParse.TagType.CODE_AREA_2} HANDING - ${lineData.line.number} - [ ${lineData.line.text} ]")
+                if (!lineData.line.isLine) //   全部都没找到
+                    lineData.markEnd()
             } else {
-                if (Regex("""^\s*```""").containsMatchIn(Data.lineData.line.text)) {
-                    if (Data.lineData.isRequireMultipleHandle && Data.lineData.parseStrategy == OVER_FOUR_BLANK_SPACE)
-                        Data.lineData.clean()
-                    log("${TagParse.TagType.CODE_AREA_2} START - ${Data.lineData.line.number} - [ ${Data.lineData.line.text} ]")
-                    Data.lineData.line.prefix = Data.lineData.line.text
-                    Data.lineData.markStart(this)
-                    Data.lineData.makeUp(TagParse.TagType.CODE_AREA_2)
+                if (antiPointsPostfixRegex.containsMatchIn(lineData.line.text)) {
+                    if (lineData.isRequireMultipleHandle && lineData.parseStrategy == OVER_FOUR_BLANK_SPACE)
+                        lineData.clean()
+                    lineData.log("${TagParse.TagType.CODE_AREA_2} START - ${lineData.line.number} - [ ${lineData.line.text} ]")
+                    lineData.line.prefix = lineData.line.text
+                    lineData.markStart(this)
+                    lineData.makeUp(TagParse.TagType.CODE_AREA_2)
                 } else
-                    POUND_KEY.lookFor()
+                    POUND_KEY.lookFor(lineData)
             }
         }
     },
     POUND_KEY {
-        override fun lookFor() {
-            if (Regex("""^\s*#""").containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.TagType.TITLE)
-                log(TagParse.TagType.TITLE.name)
+        override fun lookFor(lineData: LineData) {
+            if (poundKeyRegex.containsMatchIn(lineData.line.text)) {
+                lineData.clean()
+                lineData.makeUp(TagParse.TagType.TITLE)
+                lineData.log(TagParse.TagType.TITLE.name)
             } else
-                NUMBER.lookFor()
+                ORDERED_LIST.lookFor(lineData)
         }
     },
-    NUMBER {
-        override fun lookFor() {
-            if (Regex("""^\s*\d""").containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.TagType.ORDERED_LIST)
-                log(TagParse.TagType.ORDERED_LIST.name)
-            } else THREE_PMS.lookFor()
+    ORDERED_LIST {
+        override fun lookFor(lineData: LineData) {
+            if (orderedListRegex.containsMatchIn(lineData.line.text)) {
+                lineData.clean()
+                lineData.makeUp(TagParse.TagType.ORDERED_LIST)
+                lineData.log(TagParse.TagType.ORDERED_LIST.name)
+            } else THREE_PMS.lookFor(lineData)
         }
     },
     THREE_PMS {
-        override fun lookFor() {
-            if (Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""").containsMatchIn(
-                    Data.lineData.line.text.replace(
+        override fun lookFor(lineData: LineData) {
+            if (ThreePMSRegex.containsMatchIn(
+                    lineData.line.text.replace(
                         "\\s".toRegex(),
                         ""
                     )
                 )
             ) {
-                Data.lineData.makeUp(TagParse.TagType.SEPARATOR)
-                Data.lineData.clean()
-                log(TagParse.TagType.SEPARATOR.name)
+                lineData.makeUp(TagParse.TagType.SEPARATOR)
+                lineData.clean()
+                lineData.log(TagParse.TagType.SEPARATOR.name)
             } else
-                PLUS.lookFor()
+                UNORDERED_LIST.lookFor(lineData)
         }
     },
-    PLUS {
-        override fun lookFor() {
-            if (Regex("""^\s*\+ """).containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.makeUp(TagParse.TagType.UNORDERED_LIST)
-                Data.lineData.clean()
-                log("+ -> ${TagParse.TagType.UNORDERED_LIST}")
-            } else MINUS.lookFor()
-        }
-    },
-    MINUS {
-        override fun lookFor() {
-            if (Regex("""^\s*- """).containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.TagType.UNORDERED_LIST)
-                log("- -> ${TagParse.TagType.UNORDERED_LIST}")
-            } else STARS.lookFor()
-        }
-    },
-    STARS {
-        override fun lookFor() {
-            if (Regex("""^\s*\* """).containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.TagType.UNORDERED_LIST)
-                log("* -> ${TagParse.TagType.UNORDERED_LIST}")
-            } else PARAGRAPH.lookFor()
+    UNORDERED_LIST {
+        override fun lookFor(lineData: LineData) {
+            if (unorderedListRegex.containsMatchIn(lineData.line.text)) {
+                lineData.makeUp(TagParse.TagType.UNORDERED_LIST)
+                lineData.clean()
+                lineData.log("+ -> ${TagParse.TagType.UNORDERED_LIST}")
+            } else BRACKET.lookFor(lineData)
         }
     },
     BRACKET {
-        override fun lookFor() {
-            if (Regex("""^\s*\[(?!alt)(.*)]\((.*)\)\s*$""").containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.InlineTagType.LINK)
-                log(TagParse.InlineTagType.LINK.name)
-            } else EXCLAMATION_BRACKET.lookFor()
+        override fun lookFor(lineData: LineData) {
+            if (bracketRegex.containsMatchIn(lineData.line.text)) {
+                lineData.clean()
+                lineData.makeUp(TagParse.InlineTagType.LINK)
+                lineData.log(TagParse.InlineTagType.LINK.name)
+            } else EXCLAMATION_BRACKET.lookFor(lineData)
         }
     },
     EXCLAMATION_BRACKET {
-        private val subRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
-        override fun lookFor() {
-            if (Regex("""^\s*!\[(alt(.*))?]\($subRegex\s*(\s"(.*)"\s*)?\)$""").containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.InlineTagType.IMAGE)
-                log(TagParse.InlineTagType.IMAGE.name)
-            } else ANGLE_BRACKETS.lookFor()
+        override fun lookFor(lineData: LineData) {
+            if (exclamationBracketRegex.containsMatchIn(lineData.line.text)) {
+                lineData.clean()
+                lineData.makeUp(TagParse.InlineTagType.IMAGE)
+                lineData.log(TagParse.InlineTagType.IMAGE.name)
+            } else ANGLE_BRACKETS.lookFor(lineData)
         }
     },
     ANGLE_BRACKETS {
-        override fun lookFor() {
-            if (Regex("""\s*^<.+>$""").containsMatchIn(Data.lineData.line.text)) {
-                Data.lineData.clean()
-                Data.lineData.makeUp(TagParse.InlineTagType.LINK)
-                log(TagParse.InlineTagType.LINK.name)
-            } else PARAGRAPH.lookFor()
+        override fun lookFor(lineData: LineData) {
+            if (angleBracketsRegex.containsMatchIn(lineData.line.text)) {
+                lineData.clean()
+                lineData.makeUp(TagParse.InlineTagType.LINK)
+                lineData.log(TagParse.InlineTagType.LINK.name)
+            } else PARAGRAPH.lookFor(lineData)
         }
     },
     PARAGRAPH {
-        override fun lookFor() {
-            Data.lineData.makeUp(TagParse.TagType.PARAGRAPH)
-            Data.lineData.clean()
-            log(TagParse.TagType.PARAGRAPH.name)
+        override fun lookFor(lineData: LineData) {
+            lineData.makeUp(TagParse.TagType.PARAGRAPH)
+            lineData.clean()
+            lineData.log(TagParse.TagType.PARAGRAPH.name)
         }
     },
     ;
 
+    companion object {
+        val nestUnsortedListRegex = Regex("""^(\s{4}|\t)+[-+*]\s""")
+        val nestOrderedListRegex = Regex("""^(\s{4}|\t)+(\d+\.)+\s""")
+        val overFourBlankSpaceRegex = Regex("""^[ ]{4,}""")
+        val antiPointsPrefixRegex = Regex("""```$""")
+        val antiPointsPostfixRegex = Regex("""^\s*```""")
+        val poundKeyRegex = Regex("""^\s*#""")
+        val orderedListRegex = Regex("""^(\d+\.)+ (.*)""")
+        val ThreePMSRegex = Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""")
+        val unorderedListRegex = Regex("""^[-+*]\s""")
+        val bracketRegex = Regex("""^\s*\[(?!alt)(.*)]\((.*)\)\s*$""")
+        private const val exclamationBracketSubRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
+        val exclamationBracketRegex = Regex("""^\s*!\[(alt(.*))?]\($exclamationBracketSubRegex\s*(\s"(.*)"\s*)?\)$""")
+        val angleBracketsRegex = Regex("""\s*^<.+>$""")
+    }
 
     private val logger = Logger.getLogger(this.javaClass.name)!!
 
     fun lineIsBlank(text: String) = Regex("""^[ ]{0,3}(\n|\r)""").containsMatchIn(text) || text.isEmpty()
-    fun lastWithCurrentLineIsBlank() = Data.lineData.getLastLine().isLine
-            && lineIsBlank(Data.lineData.getLastLine().text)
-            && lineIsBlank(Data.lineData.line.text)
+    fun LineData.lastWithCurrentLineIsBlank() = this.getLastLine().isLine
+            && lineIsBlank(this.getLastLine().text)
+            && lineIsBlank(this.line.text)
 
-    fun log(parse: String) =
-        logger.i("find pre parse $parse -> [ ${Data.lineData.line.number} ] : [ ${Data.lineData.line.text} ]")
+    fun LineData.isNestList() =
+        this.getLastLine().tagParse == TagParse.TagType.UNORDERED_LIST ||
+                this.getLastLine().tagParse == TagParse.TagType.ORDERED_LIST ||
+                this.getLastLine().tagParse == TagParse.TagType.NEST_UNSORTED_LIST ||
+                this.getLastLine().tagParse == TagParse.TagType.NEST_ORDERED_LIST
 
-    abstract fun lookFor()
+    fun LineData.log(parse: String) =
+        logger.i("find pre parse $parse -> [ ${this.line.number} ] : [ ${this.line.text} ]")
+
+    abstract fun lookFor(lineData: LineData)
 }
 
 

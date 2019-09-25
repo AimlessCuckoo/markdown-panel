@@ -1,34 +1,33 @@
 package red.medusa.markdownpanel
 
 import java.io.File
-import java.util.logging.Logger
 
-class Data {
+class Data(file: File) {
+
     companion object {
-        var markdownFileName = "RREAME.md"
         var mkFile: File? = null
-        val lineData by lazy {
-            loadLines()
-        }
-
-        private fun loadLines(): LineData {
-            val logger = Logger.getLogger(Data::class.simpleName)
-            logger.i("loading lines start ...")
-            val filePath = Data::class.java.classLoader.getResource("data")?.file
-            filePath?.let {
-                File(it).walk()
-//                    .filter { file ->
-//                        file.isFile && file.extension in listOf("md")
-//                    }
-                    .forEach { file ->
-                        if (file.extension == "md" && file.name == markdownFileName) {
-                            val lines = file.readLines()
-                            mkFile = file.parentFile
-                            return LineData(lines)
-                        }
-                    }
-            }
-            return LineData(listOf())
-        }
     }
+
+    private val lineData: LineData = LineData(file.readLines())
+
+    init {
+        mkFile = file.parentFile
+    }
+
+    fun prepared(): Data {
+        while (lineData.hasMore()) {
+            lineData.preNext()
+            lineData.parseStrategy.lookFor(lineData)
+        }
+        return this
+    }
+
+    fun parse(): Data {
+        lineData.lines.values.forEach {
+            it.tagParse.parse(it)
+        }
+        return this
+    }
+
+    fun getLines() = lineData.lines.values
 }

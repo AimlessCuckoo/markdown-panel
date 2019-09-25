@@ -66,8 +66,8 @@ class LineData(datas: List<String>) {
 
     fun clean() {
         if (isRequireMultipleHandle && parseStrategy == ParseStrategy.OVER_FOUR_BLANK_SPACE) {
-            Data.lineData.markEnd()
-            logger.i("${TagParse.TagType.CODE_AREA_1} END - ${processLine + 1} - [ ${Data.lineData.line.text} ]")
+            this.markEnd()
+            logger.i("${TagParse.TagType.CODE_AREA_1} END - ${processLine + 1} - [ ${this.line.text} ]")
         }
     }
 
@@ -76,12 +76,17 @@ class LineData(datas: List<String>) {
         lines.forEachIndexed { i, line ->
             map[i] = Line(i + 1, line)
         }
+        val finishedLine = Line(-1, "")
+        finishedLine.isLine = false
+        map[-1] = finishedLine
         this.lines = map
     }
 
     fun makeUp(tagParse: TagParse) {
         this.line.tagParse = tagParse
     }
+
+
 
 
 }

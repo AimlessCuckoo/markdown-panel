@@ -4,7 +4,8 @@ import org.junit.Assert
 import org.junit.Test
 
 class TagRegexTest {
-    private val text = """Markdown使用星号/双星、底线/双底线表示*斜体*和**粗体**(星号),_斜体_和__粗体__(底线)。粗斜体使用***三星号***或___三底线___表示,链接使用中括号表示链接名,括号表示地址[链接名称](链接地址),或直接使用尖括号<www.google.com>,图片格式![alt 属性文本](img.jpg "可选标题")或![](img.jpg)"""
+    private val text =
+        """Markdown使用星号/双星、底线/双底线表示*斜体*和**粗体**(星号),_斜体_和__粗体__(底线)。粗斜体使用***三星号***或___三底线___表示,链接使用中括号表示链接名,括号表示地址[链接名称](链接地址),或直接使用尖括号<www.google.com>,图片格式![alt 属性文本](img.jpg "可选标题")或![](img.jpg)"""
 
     @Test
     fun findImageTest() {
@@ -55,6 +56,36 @@ class TagRegexTest {
         if (r != null) {
             println("名称======>" + r.destructured.component1())
             println("地址======>" + r.destructured.component2())
+        }
+    }
+
+    @Test
+    fun findNestList() {
+        var nestRegex = Regex("""^(\s{4}|\t)+[-+*]\s""")
+        var r = nestRegex.containsMatchIn("        * 嵌套第一项")
+        println(r)
+        nestRegex = Regex("""^(\s{4}|\t)+(\d+\.)+\s""")
+        r = nestRegex.containsMatchIn("        1.1. 嵌套第一项")
+        println(r)
+    }
+
+    @Test
+    fun getNestList() {
+        var nestRegex = Regex("""^((?:\s{4}|\t)+)([-+*])\s(.*)$""")
+        var r = nestRegex.find("    * 嵌套第一项")
+        if (r != null) {
+            println("------>" + r.destructured.component1())
+            println("------>" + r.destructured.component2())
+            println("------>" + r.destructured.component3())
+        }
+        println()
+        nestRegex = Regex("""^((?:\s{4}|\t)+)((\d+\.)+)\s(.*)$""")
+        r = nestRegex.find("        1.1. 嵌套第一项")
+        if (r != null) {
+            println("------>" + r.destructured.component1())
+            println("------>" + r.destructured.component2())
+            println("------>" + r.destructured.component3())
+            println("------>" + r.destructured.component4())
         }
     }
 }

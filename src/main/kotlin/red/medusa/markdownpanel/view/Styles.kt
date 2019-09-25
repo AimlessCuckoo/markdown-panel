@@ -1,4 +1,4 @@
-package red.medusa.markdownpanel.app
+package red.medusa.markdownpanel.view
 
 import javafx.geometry.Pos
 import javafx.scene.paint.Color
@@ -16,6 +16,7 @@ class Styles : Stylesheet() {
         val FiveTitleSegment by cssclass()
         val SixTitleSegment by cssclass()
         val OrderedSegment by cssclass()
+        val ListPadding by cssclass()
 
         val ParagraphSegment by cssclass()
 
@@ -83,6 +84,8 @@ class Styles : Stylesheet() {
         }
         OrderedSegment {
             padding = box(0.em, 0.em, 0.em, 2.em)
+        }
+        ListPadding{
             label {
                 padding = box(0.em, 0.7.em, 0.em, 0.em)
             }

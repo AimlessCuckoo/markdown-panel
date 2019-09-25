@@ -1,7 +1,7 @@
 package gallery
 
 import org.junit.Test
-import red.medusa.markdownpanel.ParagraphSegment
+import red.medusa.markdownpanel.view.ParagraphSegment
 import java.util.*
 
 

@@ -1,14 +1,15 @@
-package red.medusa.markdownpanel
+package red.medusa.markdownpanel.view
 
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
 import javafx.scene.paint.Color
-import red.medusa.markdownpanel.app.MarkdownPanel.Companion.WIDTH
-import red.medusa.markdownpanel.app.Styles
+import red.medusa.markdownpanel.Data
+import red.medusa.markdownpanel.InlineText
+import red.medusa.markdownpanel.pt
+import red.medusa.markdownpanel.view.MarkdownPanelFragment.Companion.WIDTH
 import tornadofx.*
 import java.io.File
 import java.io.FileInputStream
@@ -29,7 +30,7 @@ data class TagModel(
 )
 
 
-open class Segment : Region() {
+open class Segment : Pane() {
     companion object {
         // 图片
         private const val subRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
@@ -107,6 +108,26 @@ open class Segment : Region() {
                 Stream.of(it)
         }
     }.collect(Collectors.toCollection(::LinkedList))
+
+    private val nestListLengthTimes = 4
+    fun String.padStarts(c: Char) =
+        when {
+            this.length < nestListLengthTimes -> this.padStart(nestListLengthTimes, c)
+            this.length % nestListLengthTimes != 0 -> {
+                val length = this.length + nestListLengthTimes - (this.length % nestListLengthTimes)
+                this.padStart(length, c)
+            }
+            else -> this
+        }
+
+    fun String.needTimes(minimum: Int) =
+        when {
+            this.length <= nestListLengthTimes -> minimum
+            this.length % nestListLengthTimes != 0 -> {
+                (this.length + nestListLengthTimes - (this.length % nestListLengthTimes)) / nestListLengthTimes
+            }
+            else -> this.length / nestListLengthTimes
+        }
 
     fun String.debug() {
         pt("Segment ${this@Segment.javaClass.simpleName} is loading ===>$this")
@@ -236,6 +257,25 @@ class SeparatorSegment : Segment() {
     }
 }
 
+class UnOrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.OrderedSegment)
+            label("▪ ") {
+                addClass(Styles.bold)
+            }
+            label(str)
+        }
+    }
+}
+
 class OrderedSegment : Segment() {
     override fun getSegment(
         str: String,
@@ -257,7 +297,8 @@ class OrderedSegment : Segment() {
     }
 }
 
-class UnOrderedSegment : Segment() {
+
+class NestUnOrderedSegment : Segment() {
     override fun getSegment(
         str: String,
         prefix: String?,
@@ -267,7 +308,11 @@ class UnOrderedSegment : Segment() {
     ): Pane {
         str.debug()
         return hbox {
-            addClass(Styles.OrderedSegment)
+            addClass(Styles.ListPadding)
+            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
+            style {
+                padding = box(0.em, 0.em, 0.em, times.em)
+            }
             label("▪") {
                 addClass(Styles.bold)
             }
@@ -275,6 +320,32 @@ class UnOrderedSegment : Segment() {
         }
     }
 }
+
+class NestOrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.ListPadding)
+            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
+            style {
+                padding = box(0.em, 0.em, 0.em, times.em)
+            }
+            postfix?.apply {
+                label(postfix) {
+                    addClass(Styles.bold)
+                }
+            }
+            label(str)
+        }
+    }
+}
+
 
 class OpenWindowForHyperlink(val url: String) : FXEvent()
 
@@ -336,7 +407,7 @@ class ParagraphSegment : Segment() {
                         }
                     }
                 }
-                return imageview("data/markdown-file/load_error.jpg")
+                return imageview("data/markdown-file/img/load_error.jpg")
             }
         }
     }
@@ -378,7 +449,9 @@ class ParagraphSegment : Segment() {
     fun parseForImage(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithLinks = createTagModels(strWithNode, imageRegex) {
+                val stringWithLinks = createTagModels(strWithNode,
+                    imageRegex
+                ) {
                     TagModel(
                         it.range,
                         it.destructured.component2(),
@@ -395,7 +468,9 @@ class ParagraphSegment : Segment() {
     fun parseForLink(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithImage ->
             if (strWithImage is String) {
-                val stringWithLinks = createTagModels(strWithImage, linkRegex) {
+                val stringWithLinks = createTagModels(strWithImage,
+                    linkRegex
+                ) {
                     TagModel(
                         it.range,
                         it.destructured.component1(),
@@ -412,8 +487,15 @@ class ParagraphSegment : Segment() {
     fun parseForLink2(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithLinks = createTagModels(strWithNode, linkRegex2) {
-                    TagModel(it.range, null, it.destructured.component1(), DoubtfulType.LINK)
+                val stringWithLinks = createTagModels(strWithNode,
+                    linkRegex2
+                ) {
+                    TagModel(
+                        it.range,
+                        null,
+                        it.destructured.component1(),
+                        DoubtfulType.LINK
+                    )
                 }
                 contents[i] = stringWithLinks
             }
@@ -424,11 +506,18 @@ class ParagraphSegment : Segment() {
     fun parseForBoldAndItalics(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode, boldItalicsRegex) {
+                val stringWithNodes = createTagModels(strWithNode,
+                    boldItalicsRegex
+                ) {
                     var title = it.destructured.component1()
                     if (title.isEmpty())
                         title = it.destructured.component2()
-                    TagModel(it.range, title, null, DoubtfulType.BOLD_ITALICS)
+                    TagModel(
+                        it.range,
+                        title,
+                        null,
+                        DoubtfulType.BOLD_ITALICS
+                    )
                 }
                 contents[i] = stringWithNodes
             }
@@ -439,11 +528,18 @@ class ParagraphSegment : Segment() {
     fun parseForBold(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode, boldRegex) {
+                val stringWithNodes = createTagModels(strWithNode,
+                    boldRegex
+                ) {
                     var title = it.destructured.component1()
                     if (title.isEmpty())
                         title = it.destructured.component2()
-                    TagModel(it.range, title, null, DoubtfulType.BOLD)
+                    TagModel(
+                        it.range,
+                        title,
+                        null,
+                        DoubtfulType.BOLD
+                    )
                 }
                 contents[i] = stringWithNodes
             }
@@ -454,11 +550,18 @@ class ParagraphSegment : Segment() {
     fun parseForItalics(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode, italicsRegex) {
+                val stringWithNodes = createTagModels(strWithNode,
+                    italicsRegex
+                ) {
                     var title = it.destructured.component1()
                     if (title.isEmpty())
                         title = it.destructured.component2()
-                    TagModel(it.range, title, null, DoubtfulType.ITALICS)
+                    TagModel(
+                        it.range,
+                        title,
+                        null,
+                        DoubtfulType.ITALICS
+                    )
                 }
                 contents[i] = stringWithNodes
             }

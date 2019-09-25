@@ -1,5 +1,7 @@
 package red.medusa.markdownpanel
 
+import red.medusa.markdownpanel.view.*
+
 interface ViewLine {
     fun create(line: Line) {
         pt("${this.javaClass.simpleName} is loading - [${line.number}] : [ ${line.text} ]")
@@ -103,15 +105,40 @@ class OrderedListLine : ViewLine {
 
     }
 }
-
 class UnOrderedListLine : ViewLine {
     private val regex = """^[-+*] (.*)""".toRegex()
     override fun create(line: Line) {
-        super.create(line)
         regex.find(line.text)?.groupValues.apply {
             line.text = this?.component2()?.trimStart() ?: ""
             line.segmentView = UnOrderedSegment::class
         }
+        super.create(line)
+    }
+}
+
+class NestUnOrderedListLine : ViewLine {
+    private val regex = Regex("""^((?:\s{4}|\t)+)([-+*])\s(.*)$""")
+    override fun create(line: Line) {
+        super.create(line)
+        regex.find(line.text)?.destructured.apply {
+            line.prefix = this?.component1()
+            line.text = this?.component3()?.trimStart() ?: ""
+            line.segmentView = NestUnOrderedSegment::class
+        }
+        println()
+    }
+}
+class NestOrderedListLine : ViewLine {
+    private val regex = """^((?:\s{4}|\t)+)((\d+\.)+)\s(.*)$""".toRegex()
+    override fun create(line: Line) {
+        super.create(line)
+        regex.find(line.text)?.destructured?.apply {
+            line.prefix = this.component1()
+            line.postfix = this.component2()
+            line.text = this.component4().trimStart()
+            line.segmentView = NestOrderedSegment::class
+        }
+
     }
 }
 
