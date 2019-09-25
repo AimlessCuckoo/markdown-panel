@@ -4,11 +4,11 @@
 
 
 
-![alt](src/main/resources/data/markdown-file/1.png)
+![alt](src/main/resources/data/markdown-file/img/1.png)
 
-![alt](src/main/resources/data/markdown-file/2.png)
+![alt](src/main/resources/data/markdown-file/img/2.png)
 
-![alt](src/main/resources/data/markdown-file/3.png)
+![alt](src/main/resources/data/markdown-file/img/3.png)
 
 
 
