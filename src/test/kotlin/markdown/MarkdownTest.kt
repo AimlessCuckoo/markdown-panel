@@ -1,4 +1,4 @@
-package gallery
+package markdown
 
 import org.junit.Test
 import red.medusa.markdownpanel.Data

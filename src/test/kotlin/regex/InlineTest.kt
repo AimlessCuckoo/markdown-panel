@@ -1,4 +1,4 @@
-package gallery
+package regex
 
 import org.junit.Test
 import red.medusa.markdownpanel.view.ParagraphSegment
