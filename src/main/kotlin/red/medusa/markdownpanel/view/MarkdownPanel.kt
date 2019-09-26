@@ -1,5 +1,6 @@
 package red.medusa.markdownpanel.view
 
+import javafx.geometry.Insets
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
 import red.medusa.markdownpanel.Data
@@ -48,6 +49,8 @@ class MarkdownPanelFragment : Fragment() {
 
         isFitToHeight = true
         isFitToWidth = true
+
+        padding = Insets(0.0,30.0,30.0,30.0)
 
         subscribeHyperlinkEvent()
 
