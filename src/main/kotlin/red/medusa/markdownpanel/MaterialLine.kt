@@ -168,13 +168,12 @@ class ParagraphLine : ViewLine {
 class ImageLine : ViewLine {
     override fun create(line: Line) {
         super.create(line)
-        //![alt 属性文本](图片地址)
-        val regex = """^!\[alt( .*)?]\(([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)( ".*")?\)$""".toRegex()
+        val regex = Regex("""^\s*!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)\s*$""")
         regex.find(line.text)?.destructured?.apply {
             if (line.inlineText == null)
                 line.inlineText = InlineText()
-            line.inlineText?.imageName = component1()
-            line.inlineText?.imageUrl = component2()
+            line.inlineText?.imageName = component2()
+            line.inlineText?.imageUrl = component3()
         }
         line.segmentView = ImageSegment::class
     }

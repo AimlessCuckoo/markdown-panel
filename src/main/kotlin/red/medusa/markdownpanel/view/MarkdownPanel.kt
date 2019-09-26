@@ -1,5 +1,7 @@
 package red.medusa.markdownpanel.view
 
+import javafx.scene.Parent
+import javafx.scene.layout.VBox
 import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.app.MyApp.Companion.HEIGHT
 import red.medusa.markdownpanel.app.MyApp.Companion.WIDTH
@@ -8,37 +10,46 @@ import red.medusa.markdownpanel.service.MarkdownPanelParser
 import tornadofx.*
 
 class MarkdownPanelFragment : Fragment() {
-
+    override val root: Parent
     private val fileModel: MKFileModel by inject()
-
     private val mkContent = Data(fileModel.item)
-
     private val parser = MarkdownPanelParser()
 
-    override val root = scrollpane {
-        /**
-         * 构建Markdown 节点
-         */
-        mkContent
-            .prepared()
-            .parse()
+    init {
+        this.root = initScrollPanel()
+        initMarkdownPanel { this.root.content = it }
+        importStylesheet(Styles::class)
+        reloadStylesheetsOnFocus()
+    }
 
-        /**
-         * 构建TornadoFX View
-         */
-        val markdownPanel = parser.produceView(mkContent.getLines())
 
+    private fun initMarkdownPanel(runnable: (VBox) -> Unit) {
+        runAsync(TaskStatus()) {
+            /**
+             * 构建Markdown 节点
+             */
+            mkContent
+                .prepared()
+                .parse()
+
+            /**
+             * 构建TornadoFX View
+             */
+            parser.produceView(mkContent.getLines())
+
+        } ui {
+            runnable(it)
+        }
+    }
+
+    private fun initScrollPanel() = scrollpane {
         prefWidth = WIDTH
         prefHeight = HEIGHT
 
         isFitToHeight = true
         isFitToWidth = true
-        content = markdownPanel
 
-        //点击超链接可打开游览器
         subscribeHyperlinkEvent()
-
-        vvalue = 0.0
 
         addClass(Styles.ParagraphSegment)
     }
@@ -47,10 +58,5 @@ class MarkdownPanelFragment : Fragment() {
         this.subscribe<OpenWindowForHyperlink> { event ->
             hostServices.showDocument(event.url)
         }
-    }
-
-    init {
-        importStylesheet(Styles::class)
-        reloadStylesheetsOnFocus()
     }
 }

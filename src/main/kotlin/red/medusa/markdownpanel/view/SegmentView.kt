@@ -12,6 +12,8 @@ import red.medusa.markdownpanel.pt
 import tornadofx.*
 import java.io.File
 import java.io.FileInputStream
+import java.io.IOException
+import java.net.URL
 import java.util.*
 import java.util.stream.Collectors
 import java.util.stream.Stream
@@ -32,8 +34,7 @@ data class TagModel(
 open class Segment : Pane() {
     companion object {
         // 图片
-        private const val subRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
-        val imageRegex = """!\[(alt(.*))?]\($subRegex\s*(\s"(.*)"\s*)?\)""".toRegex()
+        val imageRegex = Regex("""!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)""")
         // 链接
         val linkRegex = """\[(?!alt)(.*)]\((.*)\)""".toRegex()
         // 链接<.+>
@@ -127,6 +128,24 @@ open class Segment : Pane() {
             }
             else -> this.length / nestListLengthTimes
         }
+
+    fun getImage(url: String) = try {
+        if (url.trimStart().startsWith("http")) {
+            val image = URL(url).openStream()
+            imageview(Image(image))
+        } else {
+            Data.mkFile?.resolve(File(url))?.canonicalFile?.apply {
+                if (this.exists() && this.isFile) {
+                    return imageview(Image(FileInputStream(this)))
+                }
+            }
+            throw IOException("找不到图片")
+        }
+    } catch (e: Exception) {
+        imageview("data/markdown-file/img/load_error.jpg") {
+            tooltip("找不到图片")
+        }
+    }
 
     fun String.debug() {
         pt("Segment ${this@Segment.javaClass.simpleName} is loading ===>$this")
@@ -378,7 +397,7 @@ class ParagraphSegment : Segment() {
 
     private fun getNode(node: TagModel): Node? {
         val title = node.name ?: ""
-        when (node.type) {
+        return when (node.type) {
             DoubtfulType.TEXT -> return text(title)
             DoubtfulType.BOLD_ITALICS -> return text(title) {
                 // 字体对斜体支持不好,先用颜色代替
@@ -398,16 +417,7 @@ class ParagraphSegment : Segment() {
                     }
                 }
             }
-            DoubtfulType.IMAGE -> {
-                Data.mkFile?.resolve(File(node.url))?.canonicalFile?.apply {
-                    if (this.exists() && this.isFile) {
-                        return imageview(Image(FileInputStream(this))) {
-                            tooltip(title)
-                        }
-                    }
-                }
-                return imageview("data/markdown-file/img/load_error.jpg")
-            }
+            DoubtfulType.IMAGE -> getImage(node.url!!)
         }
     }
 
@@ -448,7 +458,8 @@ class ParagraphSegment : Segment() {
     fun parseForImage(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithLinks = createTagModels(strWithNode,
+                val stringWithLinks = createTagModels(
+                    strWithNode,
                     imageRegex
                 ) {
                     TagModel(
@@ -467,7 +478,8 @@ class ParagraphSegment : Segment() {
     fun parseForLink(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithImage ->
             if (strWithImage is String) {
-                val stringWithLinks = createTagModels(strWithImage,
+                val stringWithLinks = createTagModels(
+                    strWithImage,
                     linkRegex
                 ) {
                     TagModel(
@@ -486,7 +498,8 @@ class ParagraphSegment : Segment() {
     fun parseForLink2(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithLinks = createTagModels(strWithNode,
+                val stringWithLinks = createTagModels(
+                    strWithNode,
                     linkRegex2
                 ) {
                     TagModel(
@@ -505,7 +518,8 @@ class ParagraphSegment : Segment() {
     fun parseForBoldAndItalics(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode,
+                val stringWithNodes = createTagModels(
+                    strWithNode,
                     boldItalicsRegex
                 ) {
                     var title = it.destructured.component1()
@@ -527,7 +541,8 @@ class ParagraphSegment : Segment() {
     fun parseForBold(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode,
+                val stringWithNodes = createTagModels(
+                    strWithNode,
                     boldRegex
                 ) {
                     var title = it.destructured.component1()
@@ -549,7 +564,8 @@ class ParagraphSegment : Segment() {
     fun parseForItalics(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
-                val stringWithNodes = createTagModels(strWithNode,
+                val stringWithNodes = createTagModels(
+                    strWithNode,
                     italicsRegex
                 ) {
                     var title = it.destructured.component1()
@@ -639,12 +655,8 @@ class ImageSegment : Segment() {
         str.debug()
         return hbox {
             inlineText?.apply {
-                Data.mkFile?.resolve(File(inlineText.imageUrl))?.canonicalFile?.apply {
-                    if (this.exists() && this.isFile) {
-                        imageview(Image(FileInputStream(this))) {
-                            tooltip(inlineText.imageName ?: "图片")
-                        }
-                    }
+                if (inlineText.imageUrl != null) {
+                    this@hbox.add(getImage(inlineText.imageUrl!!))
                 }
             }
         }

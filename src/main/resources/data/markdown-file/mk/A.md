@@ -68,12 +68,19 @@ Markdown 段落没有特殊的格式,直接编写文字就好,段落的换行是
 *****
 - - -
 - - - -------
- 
-![alt 属性文本](../img/img.jpg "可选标题") 
+![](http://pic.sc.chinaz.com/Files/pic/pic9/201908/zzpic19614_s.jpg) 
+
+
+![alt 属性文本](https://img.ivsky.com/img/tupian/li/201812/22/qiutian.jpg "可选标题") 
+
+
 [百度一下](www.baid.com) 
 <www.baidu.com>
- 
+
+
 Markdown使用星号/双星、底线/双底线表示*斜体*和**粗体**(星号),_斜体_和__粗体__(底线)。
 粗斜体使用***三星号***或___三底线___表示,链接使用中括号表示链接名,括号表示地址,例如: [链接名称](www.baidu.com),
-或直接使用尖括号<www.baidu.com>,图片格式![alt 属性文本](../img/img.jpg "可选标题")
+或直接使用尖括号<www.baidu.com>,图片格式:![alt 属性文本](../img/img.jpg "可选标题")
+
+
 

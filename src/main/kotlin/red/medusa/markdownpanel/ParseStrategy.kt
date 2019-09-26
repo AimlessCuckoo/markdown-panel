@@ -171,8 +171,7 @@ enum class ParseStrategy {
         val ThreePMSRegex = Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""")
         val unorderedListRegex = Regex("""^[-+*]\s""")
         val bracketRegex = Regex("""^\s*\[(?!alt)(.*)]\((.*)\)\s*$""")
-        private const val exclamationBracketSubRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#${'$'}%^&*()=+`\/-]+)"""
-        val exclamationBracketRegex = Regex("""^\s*!\[(alt(.*))?]\($exclamationBracketSubRegex\s*(\s"(.*)"\s*)?\)$""")
+        val exclamationBracketRegex = Regex("""^\s*!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)\s*$""")
         val angleBracketsRegex = Regex("""\s*^<.+>$""")
     }
 
