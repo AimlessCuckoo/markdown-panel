@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     compile 'no.tornado:tornadofx:1.7.19'
-    testCompile  'junit:junit:4.11'
+    testCompile 'junit:junit:4.11'
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
@@ -31,11 +31,15 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-def localMavenRepo = 'file://' + new File(localMavenRepository).absolutePath
+def localMavenRepo = project.hasProperty("localMavenRepository") ?
+        new File(project.getProperties().get("localMavenRepository").toString()).absolutePath :
+        new File(System.getProperty('user.home'), '.m2/repository').absolutePath
+
 uploadArchives {
+    outputs.upToDateWhen { false }
     repositories {
         mavenDeployer {
-            repository(url: localMavenRepo)
+            repository(url: 'file://' + localMavenRepo)
             pom.version = '1.0'
             pom.artifactId = 'markdown-panel'
         }
