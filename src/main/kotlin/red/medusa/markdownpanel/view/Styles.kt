@@ -31,7 +31,6 @@ class Styles : Stylesheet() {
         }
         val FONT_SIZE = 18.0
         val baseMixin = mixin {
-            baseColor = c("353535")
             fontSize = FONT_SIZE.px
         }
     }

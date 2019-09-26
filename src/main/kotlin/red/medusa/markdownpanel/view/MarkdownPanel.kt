@@ -52,6 +52,10 @@ class MarkdownPanelFragment : Fragment() {
 
         padding = Insets(0.0,30.0,30.0,30.0)
 
+        style{
+            baseColor = c("353535")
+        }
+
         subscribeHyperlinkEvent()
 
         addClass(Styles.ParagraphSegment)
