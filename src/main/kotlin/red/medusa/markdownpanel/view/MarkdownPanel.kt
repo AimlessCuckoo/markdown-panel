@@ -36,7 +36,9 @@ class MarkdownPanelFragment : Fragment() {
             /**
              * 构建TornadoFX View
              */
-            parser.produceView(mkContent.getLines())
+            parser.produceView(mkContent.getLines()).apply {
+                spacing = 1.em.value
+            }
 
         } ui {
             runnable(it)
