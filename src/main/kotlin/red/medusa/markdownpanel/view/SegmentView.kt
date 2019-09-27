@@ -5,6 +5,7 @@ import javafx.scene.Node
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
+import javafx.scene.paint.Color
 import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.InlineText
 import red.medusa.markdownpanel.pt
@@ -148,6 +149,7 @@ open class Segment : Pane() {
      * 内联样式
      */
     fun String.getInlineBlock() = flowpane {
+        hgrow = Priority.ALWAYS
         alignment = Pos.BASELINE_LEFT
         val contents = this@getInlineBlock.parseMe()
         contents?.forEach { node ->

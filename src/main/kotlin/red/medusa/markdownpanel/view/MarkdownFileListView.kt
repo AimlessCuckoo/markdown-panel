@@ -13,6 +13,12 @@ class MarkdownFileListView : View() {
 
     override val root = vbox {
         listview(markdownFileStore.mkFiles) {
+            prefWidth = 350.0
+            prefHeight = 400.0
+            style {
+                fontSize = 22.px
+                fontFamily = "Comic Sans MS"
+            }
             vgrow = Priority.ALWAYS
             cellFormat {
                 graphic = label(it.name)
