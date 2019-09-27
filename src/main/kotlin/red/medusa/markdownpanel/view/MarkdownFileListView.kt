@@ -20,7 +20,7 @@ class MarkdownFileListView : View() {
             bindSelected(fileModel)
             setOnMouseClicked {
                 if (fileModel.item != null && fileModel.item.exists())
-                    find<MarkdownPanelFragment>().openWindow()
+                    find<MarkdownPanelFragment>().openWindow(owner = null)
             }
         }
     }
