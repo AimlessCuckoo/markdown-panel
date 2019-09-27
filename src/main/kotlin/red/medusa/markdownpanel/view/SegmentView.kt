@@ -34,7 +34,7 @@ open class Segment : Pane() {
         // 图片
         val imageRegex = Regex("""!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)""")
         // 链接
-        val linkRegex = """\[(?!alt)(.*)]\((.*)\)""".toRegex()
+        val linkRegex = """\[(?!alt)([^]]*)]\(([^)]+)\)""".toRegex()
         // 链接<.+>
         val linkRegex2 = """<(.+)>""".toRegex()
         // 斜体加粗
@@ -638,6 +638,7 @@ class LinkSegment : Segment() {
     ): Pane {
         str.debug()
         return hbox {
+
             inlineText?.apply {
                 val url = inlineText.linkName ?: inlineText.linkUrl ?: ""
                 hyperlink(url).action {

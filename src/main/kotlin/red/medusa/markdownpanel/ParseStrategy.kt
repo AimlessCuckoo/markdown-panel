@@ -170,7 +170,7 @@ enum class ParseStrategy {
         val orderedListRegex = Regex("""^(\d+\.)+ (.*)""")
         val ThreePMSRegex = Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""")
         val unorderedListRegex = Regex("""^[-+*]\s""")
-        val bracketRegex = Regex("""^\s*\[(?!alt)(.*)]\((.*)\)\s*$""")
+        val bracketRegex = Regex("""^\s*\[(?!alt)([^]]*)]\(([^)]+)\)\s*$""")
         val exclamationBracketRegex = Regex("""^\s*!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)\s*$""")
         val angleBracketsRegex = Regex("""\s*^<.+>$""")
     }

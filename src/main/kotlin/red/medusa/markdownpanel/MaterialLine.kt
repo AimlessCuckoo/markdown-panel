@@ -181,9 +181,11 @@ class ImageLine : ViewLine {
 
 
 class LinkLine : ViewLine {
+    // 选择解析方式
     private val preRegex = """\s*^\[""".toRegex()
-    private val regex1 = """^\[(.*)]\((.*)\)$""".toRegex()
-    private val regex2 = """^<(.+)>$""".toRegex()
+
+    private val regex1 = """^\s*\[(?!alt)([^]]*)]\(([^)]+)\)\s*$""".toRegex()
+    private val regex2 = """^\s*<(.+)>\s*$""".toRegex()
     override fun create(line: Line) {
         if (preRegex.containsMatchIn(line.text)) {
             create1(line)

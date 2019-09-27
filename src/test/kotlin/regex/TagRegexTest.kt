@@ -5,13 +5,13 @@ import org.junit.Test
 
 class TagRegexTest {
 
-    private var text = """Markdown使用星号/双星、底线/双底线表示*斜体*和**粗体**(星号),_斜体_和__粗体__(底线)。粗斜体使用***三星号***或___三底线___表示,链接使用中括号表示链接名,括号表示地址[链接名称](链接地址),或直接使用尖括号<www.google.com>,图片格式![alt 属性文本](img.jpg "可选标题")或![](img.jpg)"""
+    private var text =
+        """Markdown使用星号/双星、底线/双底线表示*斜体*和**粗体**(星号),_斜体_和__粗体__(底线)。粗斜体使用***三星号***或___三底线___表示,链接使用中括号表示链接名,括号表示地址[链接名称](链接地址),或直接使用尖括号<www.google.com>,图片格式![alt 属性文本](img.jpg "可选标题")或![](img.jpg)"""
 
     @Test
     fun findImageTest() {
-        text = """![](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1569490875869&di=63df696bd4945648d969093b25807614&imgtype=0&src=http%3A%2F%2Fpic27.nipic.com%2F20130319%2F2404952_103817736357_2.jpg) """
-//
-        var subRegex = """([a-zA-Z0-9\u4e00-\u9fa5._!@#$%^&*()=+`\/:-]+)"""
+        text =
+            """![](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1569490875869&di=63df696bd4945648d969093b25807614&imgtype=0&src=http%3A%2F%2Fpic27.nipic.com%2F20130319%2F2404952_103817736357_2.jpg) """
 
         val imageRegex = """!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)""".toRegex()
 
@@ -54,8 +54,9 @@ class TagRegexTest {
 
     @Test
     fun findLinkTest() {
-        val linkRegex = """\[(?!alt)(.*)]\((.*)\)""".toRegex()
-        var r = linkRegex.find("链接使用中括号与圆括号定义[链接名称](www.google.com),图片![altdddddddd](img.jpg \"可选标题\")可这样定义")
+        val linkRegex = """^\s*\[(?!alt)([^]]*)]\(([^)]+)\)\s*$""".toRegex()
+        val r = linkRegex.find(""" [百度一下](www.baid.com) """)
+        println(r?.groupValues)
         if (r != null) {
             println("名称======>" + r.destructured.component1())
             println("地址======>" + r.destructured.component2())
