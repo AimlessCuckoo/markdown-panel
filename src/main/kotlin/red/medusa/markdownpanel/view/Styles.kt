@@ -41,9 +41,6 @@ class Styles : Stylesheet() {
     }
 
     init {
-        root {
-            fontFamily = "Comic Sans MS"
-        }
         hyperlink {
             borderColor += box(Color.TRANSPARENT)
             borderWidth += box(0.px)

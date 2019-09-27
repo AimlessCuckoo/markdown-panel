@@ -56,6 +56,7 @@ class MarkdownPanelFragment : Fragment() {
 
         style{
             baseColor = c("353535")
+            fontFamily = "Comic Sans MS"
         }
 
         subscribeHyperlinkEvent()
