@@ -2,13 +2,18 @@ package red.medusa.markdownpanel.view
 
 import javafx.geometry.Pos
 import javafx.scene.paint.Color
+import javafx.scene.text.FontPosture
 import javafx.scene.text.FontWeight
 import tornadofx.*
+
 
 class Styles : Stylesheet() {
     companion object {
         val lineNumber by cssclass()
         val bold by cssclass()
+        val italics by cssclass()
+        val boldItalics by cssclass()
+        val paddingTow by cssclass()
         val OneTitleSegment by cssclass()
         val TowTitleSegment by cssclass()
         val ThreeTitleSegment by cssclass()
@@ -37,18 +42,21 @@ class Styles : Stylesheet() {
 
     init {
         root {
-
+            fontFamily = "Comic Sans MS"
+        }
+        hyperlink {
+            borderColor += box(Color.TRANSPARENT)
+            borderWidth += box(0.px)
+            and(selected) {
+                borderColor += box(Color.TRANSPARENT)
+                borderWidth += box(0.px)
+            }
         }
         ParagraphSegment {
-//            textAlignment = TextAlignment.LEFT
-//            alignment = Pos.TOP_LEFT
             +baseMixin
         }
         lineNumber {
             alignment = Pos.CENTER_RIGHT
-        }
-        bold {
-            fontWeight = FontWeight.BOLD
         }
         OneTitleSegment {
             +boldMixin
@@ -84,7 +92,7 @@ class Styles : Stylesheet() {
         OrderedSegment {
             padding = box(0.em, 0.em, 0.em, 2.em)
         }
-        ListPadding{
+        ListPadding {
             label {
                 padding = box(0.em, 0.7.em, 0.em, 0.em)
             }
@@ -97,7 +105,19 @@ class Styles : Stylesheet() {
         CoderAreaColor {
             fill = c("47dfc5")
         }
-
+        paddingTow {
+            padding = box(0.em, 0.em, 0.em, 2.em)
+        }
+        bold {
+            fontWeight = FontWeight.BOLD
+        }
+        italics {
+            fontStyle = FontPosture.ITALIC
+        }
+        boldItalics {
+            fontWeight = FontWeight.BOLD
+            fontStyle = FontPosture.ITALIC
+        }
     }
 }
 

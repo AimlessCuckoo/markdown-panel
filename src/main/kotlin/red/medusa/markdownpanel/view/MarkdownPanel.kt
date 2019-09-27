@@ -18,7 +18,7 @@ class MarkdownPanelFragment : Fragment() {
 
     init {
         this.root = initScrollPanel()
-        initMarkdownPanel { this.root.content = it }
+        initMarkdownPanel { root.content = it }
         importStylesheet(Styles::class)
         reloadStylesheetsOnFocus()
     }

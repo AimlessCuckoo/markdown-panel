@@ -5,7 +5,6 @@ import javafx.scene.Node
 import javafx.scene.image.Image
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.InlineText
 import red.medusa.markdownpanel.pt
@@ -29,7 +28,6 @@ data class TagModel(
     var url: String? = null,
     var type: DoubtfulType = DoubtfulType.TEXT
 )
-
 
 open class Segment : Pane() {
     companion object {
@@ -62,10 +60,7 @@ open class Segment : Pane() {
         }
     }
 
-    /**
-     * 方便添加Css
-     */
-    fun getSegment(
+    fun getSegmentForInlineBlock(
         str: String,
         css: CssRule,
         prefix: String?
@@ -75,12 +70,10 @@ open class Segment : Pane() {
         prefix?.apply {
             label("$this ")
         }
-        label {
-            text = str
-        }
+        this.add(str.getInlineBlock())
     }
 
-    fun createTagModels(text: String, regex: Regex, transform: (MatchResult) -> TagModel): LinkedList<Any> {
+    private fun createTagModels(text: String, regex: Regex, transform: (MatchResult) -> TagModel): LinkedList<Any> {
         val list = LinkedList<Any>()
         val rs = LinkedList<Any>()
         var result = regex.find(text)
@@ -100,7 +93,7 @@ open class Segment : Pane() {
         return list
     }
 
-    fun Collection<Any>.flatMap(): LinkedList<Any> = this.stream().flatMap {
+    private fun Collection<Any>.flatMap(): LinkedList<Any> = this.stream().flatMap {
         when (it) {
             is Collection<*> ->
                 it.stream()
@@ -151,264 +144,43 @@ open class Segment : Pane() {
         pt("Segment ${this@Segment.javaClass.simpleName} is loading ===>$this")
     }
 
-}
-
-class OneTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.OneTitleSegment, prefix)
-    }
-}
-
-class TowTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.TowTitleSegment, prefix)
-    }
-}
-
-class ThreeTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.ThreeTitleSegment, prefix)
-    }
-}
-
-class FourTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.FourTitleSegment, prefix)
-    }
-}
-
-class FiveTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.FiveTitleSegment, prefix)
-    }
-}
-
-class SixTitleSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, Styles.SixTitleSegment, prefix)
-    }
-}
-
-class BlankSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return null
-    }
-}
-
-class LinefeedSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return super.getSegment(str, prefix, postfix, lineNumber, inlineText)
-    }
-}
-
-class SeparatorSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return vbox {
-            addClass(Styles.SeparatorSegment)
-            separator {
-                useMaxSize = true
-            }
-        }
-    }
-}
-
-class UnOrderedSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane {
-        str.debug()
-        return hbox {
-            addClass(Styles.OrderedSegment)
-            label("▪ ") {
-                addClass(Styles.bold)
-            }
-            label(str)
-        }
-    }
-}
-
-class OrderedSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane {
-        str.debug()
-        return hbox {
-            addClass(Styles.OrderedSegment)
-            prefix?.apply {
-                label(prefix) {
-                    addClass(Styles.bold)
-                }
-            }
-            label(str)
-        }
-    }
-}
-
-
-class NestUnOrderedSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane {
-        str.debug()
-        return hbox {
-            addClass(Styles.ListPadding)
-            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
-            style {
-                padding = box(0.em, 0.em, 0.em, times.em)
-            }
-            label("▪") {
-                addClass(Styles.bold)
-            }
-            label(str)
-        }
-    }
-}
-
-class NestOrderedSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane {
-        str.debug()
-        return hbox {
-            addClass(Styles.ListPadding)
-            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
-            style {
-                padding = box(0.em, 0.em, 0.em, times.em)
-            }
-            postfix?.apply {
-                label(postfix) {
-                    addClass(Styles.bold)
-                }
-            }
-            label(str)
-        }
-    }
-}
-
-
-class OpenWindowForHyperlink(val url: String) : FXEvent()
-
-class ParagraphSegment : Segment() {
-    override fun getSegment(
-        str: String,
-        prefix: String?,
-        postfix: String?,
-        lineNumber: Int?,
-        inlineText: InlineText?
-    ): Pane? {
-        str.debug()
-        return hbox {
-            flowpane {
-                hgrow = Priority.ALWAYS
-                alignment = Pos.BASELINE_LEFT
-                addClass(Styles.ParagraphSegment)
-                val contents = str.parseMe()
-                contents?.forEach { node ->
-                    if (node is String) {
-                        label(node)
-                    } else if (node is TagModel) {
-                        val item = getNode(node)
-                        item?.attachTo(this)
+    /**
+     * 内联样式
+     */
+    fun String.getInlineBlock() = flowpane {
+        alignment = Pos.BASELINE_LEFT
+        val contents = this@getInlineBlock.parseMe()
+        contents?.forEach { node ->
+            if (node is String) {
+                label(node) {
+                    style {
+                        padding = box(0.px)
                     }
                 }
+            } else if (node is TagModel) {
+                val item = getNode(node)
+                with(item) {
+                    this!!.style {
+                        padding = box(0.px)
+                    }
+                }
+                item?.attachTo(this)
             }
         }
     }
-
 
     private fun getNode(node: TagModel): Node? {
         val title = node.name ?: ""
         return when (node.type) {
-            DoubtfulType.TEXT -> return text(title)
-            DoubtfulType.BOLD_ITALICS -> return text(title) {
-                // 字体对斜体支持不好,先用颜色代替
-                style = ("""-fx-font-weight:bold;-fx-font-style:oblique;-fx-fill:#def3fb""")
+            DoubtfulType.TEXT -> return label(title)
+            DoubtfulType.BOLD_ITALICS -> return label(title) {
+                addClass(Styles.boldItalics)
             }
-            DoubtfulType.BOLD -> return text(title) {
+            DoubtfulType.BOLD -> return label(title) {
                 addClass(Styles.bold)
-                fill = Color.WHITE
             }
-            DoubtfulType.ITALICS -> return text(title) {
-                style = ("""-fx-font-style:oblique;-fx-fill:#def3fb""")
+            DoubtfulType.ITALICS -> return label(title) {
+                addClass(Styles.italics)
             }
             DoubtfulType.LINK -> {
                 return hyperlink(node.name ?: node.url ?: "") {
@@ -584,6 +356,238 @@ class ParagraphSegment : Segment() {
         return contents.flatMap()
     }
 
+
+}
+
+class OneTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.OneTitleSegment, prefix)
+    }
+}
+
+class TowTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.TowTitleSegment, prefix)
+    }
+}
+
+class ThreeTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.ThreeTitleSegment, prefix)
+    }
+}
+
+class FourTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.FourTitleSegment, prefix)
+    }
+}
+
+class FiveTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.FiveTitleSegment, prefix)
+    }
+}
+
+class SixTitleSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegmentForInlineBlock(str, Styles.SixTitleSegment, prefix)
+    }
+}
+
+class BlankSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return null
+    }
+}
+
+class LinefeedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return super.getSegment(str, prefix, postfix, lineNumber, inlineText)
+    }
+}
+
+class SeparatorSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return vbox {
+            addClass(Styles.SeparatorSegment)
+            separator {
+                useMaxSize = true
+            }
+        }
+    }
+}
+
+class UnOrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.paddingTow)
+            label("▪ ") {
+                addClass(Styles.bold)
+            }
+            this.add(str.getInlineBlock())
+        }
+    }
+}
+
+class OrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.paddingTow)
+            prefix?.apply {
+                label(prefix) {
+                    addClass(Styles.bold)
+                }
+            }
+            this.add(str.getInlineBlock())
+        }
+    }
+}
+
+class NestUnOrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.ListPadding)
+            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
+            style {
+                padding = box(0.em, 0.em, 0.em, times.em)
+            }
+            label("▪") {
+                addClass(Styles.bold)
+            }
+            this.add(str.getInlineBlock())
+        }
+    }
+}
+
+class NestOrderedSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane {
+        str.debug()
+        return hbox {
+            addClass(Styles.ListPadding)
+            val times = (prefix?.needTimes(1) ?: 1) * 2 + 2
+            style {
+                padding = box(0.em, 0.em, 0.em, times.em)
+            }
+            postfix?.apply {
+                label(postfix) {
+                    addClass(Styles.bold)
+                }
+            }
+            this.add(str.getInlineBlock())
+        }
+    }
+}
+
+
+class OpenWindowForHyperlink(val url: String) : FXEvent()
+
+class ParagraphSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return str.getInlineBlock().apply {
+            alignment = Pos.BASELINE_LEFT
+            addClass(Styles.ParagraphSegment)
+        }
+
+    }
+
 }
 
 class CodeArea1Segment : Segment() {
@@ -662,4 +666,5 @@ class ImageSegment : Segment() {
         }
     }
 }
+
 
