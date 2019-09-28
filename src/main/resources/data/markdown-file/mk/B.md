@@ -68,7 +68,7 @@ Markdown 段落没有特殊的格式,直接编写文字就好,段落的换行是
 - - -
 - - - -------
 
-[百度一下](www.baid.com) 
+[百度一下](www.baidu.com) 
 <www.baidu.com>
 
 

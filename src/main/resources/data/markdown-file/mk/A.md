@@ -71,7 +71,7 @@ Markdown 段落没有特殊的格式,直接编写文字就好,段落的换行是
 ![alt 属性文本](https://img.ivsky.com/img/tupian/li/201812/22/qiutian.jpg "可选标题") 
 
 
-[百度一下](www.baid.com) 
+[百度一下](www.baidu.com) 
 <www.baidu.com>
 
 

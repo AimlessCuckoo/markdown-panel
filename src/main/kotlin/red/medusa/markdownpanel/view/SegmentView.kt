@@ -186,6 +186,7 @@ open class Segment : Pane() {
             }
             DoubtfulType.LINK -> {
                 return hyperlink(node.name ?: node.url ?: "") {
+                    tooltip(node.url ?: "")
                     onDoubleClick {
                         FX.eventbus.fire(OpenWindowForHyperlink(node.url ?: ""))
                     }
@@ -643,8 +644,11 @@ class LinkSegment : Segment() {
 
             inlineText?.apply {
                 val url = inlineText.linkName ?: inlineText.linkUrl ?: ""
-                hyperlink(url).action {
-                    tooltip(inlineText.linkName ?: "链接")
+                hyperlink(url) {
+                    tooltip(inlineText.linkUrl ?: "")
+                    onDoubleClick {
+                        FX.eventbus.fire(OpenWindowForHyperlink(inlineText.linkUrl ?: ""))
+                    }
                 }
             }
         }
