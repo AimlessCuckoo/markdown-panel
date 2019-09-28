@@ -9,6 +9,7 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
+        val MarkdownPanelFragment by cssclass()
         val lineNumber by cssclass()
         val bold by cssclass()
         val italics by cssclass()
@@ -41,6 +42,9 @@ class Styles : Stylesheet() {
     }
 
     init {
+        MarkdownPanelFragment{
+            +baseMixin
+        }
         hyperlink {
             borderColor += box(Color.TRANSPARENT)
             borderWidth += box(0.px)

@@ -58,9 +58,10 @@ class MarkdownPanelParser {
         markdownPanel.clear()
         lines.forEach {
             when (it.tagParse) {
-                TagParse.TagType.PARAGRAPH -> {
-                    it.maybeNeedToMakeChunked(isNeedTrim = true, isNeedLinefeed = false)
-                }
+                // 出于方便使用的目的,不遵循传统的两换行才算换行的规范了
+//                TagParse.TagType.PARAGRAPH -> {
+//                    it.maybeNeedToMakeChunked(isNeedTrim = true, isNeedLinefeed = false)
+//                }
                 TagParse.TagType.CODE_AREA_1 -> {
                     it.maybeNeedToMakeChunked()
                 }

@@ -161,6 +161,7 @@ enum class ParseStrategy {
     ;
 
     companion object {
+        val blankLineReg = Regex("""^[ ]{0,3}(\n|\r)""")
         val nestUnsortedListRegex = Regex("""^(\s{4}|\t)+[-+*]\s""")
         val nestOrderedListRegex = Regex("""^(\s{4}|\t)+(\d+\.)+\s""")
         val overFourBlankSpaceRegex = Regex("""^[ ]{4,}""")
@@ -177,7 +178,7 @@ enum class ParseStrategy {
 
     private val logger = Logger.getLogger(this.javaClass.name)!!
 
-    fun lineIsBlank(text: String) = Regex("""^[ ]{0,3}(\n|\r)""").containsMatchIn(text) || text.isEmpty()
+    fun lineIsBlank(text: String) = text.isEmpty() || blankLineReg.containsMatchIn(text)
     fun LineData.lastWithCurrentLineIsBlank() = this.getLastLine().isLine
             && lineIsBlank(this.getLastLine().text)
             && lineIsBlank(this.line.text)

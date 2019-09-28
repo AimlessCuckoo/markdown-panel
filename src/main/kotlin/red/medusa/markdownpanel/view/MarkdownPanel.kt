@@ -17,8 +17,10 @@ class MarkdownPanelFragment : Fragment() {
     private val parser = MarkdownPanelParser()
 
     init {
+
         this.root = initScrollPanel()
         initMarkdownPanel { root.content = it }
+
         importStylesheet(Styles::class)
         reloadStylesheetsOnFocus()
     }
@@ -37,7 +39,7 @@ class MarkdownPanelFragment : Fragment() {
              * 构建TornadoFX View
              */
             parser.produceView(mkContent.getLines()).apply {
-                spacing = 1.em.value
+                spacing = 5.0
             }
 
         } ui {
@@ -46,6 +48,7 @@ class MarkdownPanelFragment : Fragment() {
     }
 
     private fun initScrollPanel() = scrollpane {
+
         prefWidth = WIDTH
         prefHeight = HEIGHT
 
@@ -61,7 +64,7 @@ class MarkdownPanelFragment : Fragment() {
 
         subscribeHyperlinkEvent()
 
-        addClass(Styles.ParagraphSegment)
+        addClass(Styles.MarkdownPanelFragment)
     }
 
     private fun Component.subscribeHyperlinkEvent() {

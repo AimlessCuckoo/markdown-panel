@@ -8,7 +8,6 @@ import tornadofx.*
 class MarkdownFileListView : View() {
 
     private val fileModel: MKFileModel by inject()
-
     private val markdownFileStore: MarkdownFileStore by inject()
 
     override val root = vbox {
@@ -26,7 +25,7 @@ class MarkdownFileListView : View() {
             bindSelected(fileModel)
             setOnMouseClicked {
                 if (fileModel.item != null && fileModel.item.exists())
-                    find<MarkdownPanelFragment>().openWindow(owner = null)
+                   find<MarkdownPanelFragment>().openWindow(owner = null)
             }
         }
     }

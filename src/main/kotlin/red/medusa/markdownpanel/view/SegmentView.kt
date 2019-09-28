@@ -3,9 +3,9 @@ package red.medusa.markdownpanel.view
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.image.Image
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import javafx.scene.paint.Color
 import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.InlineText
 import red.medusa.markdownpanel.pt
@@ -448,7 +448,7 @@ class BlankSegment : Segment() {
         inlineText: InlineText?
     ): Pane? {
         str.debug()
-        return null
+        return HBox()
     }
 }
 

@@ -30,6 +30,12 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+tasks.withType(Javadoc) {
+    options.encoding = "UTF-8"
+}
 
 def localMavenRepo = project.hasProperty("localMavenRepository") ?
         new File(project.getProperties().get("localMavenRepository").toString()).absolutePath :
