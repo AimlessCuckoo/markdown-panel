@@ -21,10 +21,7 @@ class MarkdownFileListView : View() {
     }
 }
 ```
-
-# 例
-
-
+---
 
 ![alt](src/main/resources/data/markdown-file/img/1.png)
 
