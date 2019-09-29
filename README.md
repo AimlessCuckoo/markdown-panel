@@ -51,7 +51,7 @@ val data = MKData(File(filePath))
         .parse()            // 构建数据
     
 	// 这里就可以获得所有markdown成品信息了,我们可以用这些信息完成自己的个性化解析,不论是
-	// 使用TornadoFX或JavaFX,或GroovyFX...
+	// 使用JavaFX、TornadoFX、GroovyFX或其它FX...
     data.getLines().forEach {
                 println(it)
             }  
