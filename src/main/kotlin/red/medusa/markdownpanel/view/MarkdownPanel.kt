@@ -31,7 +31,7 @@ class MarkdownPanelFragment : Fragment() {
 
 
     private fun initMarkdownPanel(runnable: (VBox) -> Unit) {
-        runAsync(TaskStatus()) {
+        runAsync {
             /**
              * 构建Markdown 节点
              */

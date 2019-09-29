@@ -27,16 +27,15 @@ class MarkdownFileListView : View() {
             }
             bindSelected(fileModel)
 
-            selectionModel.selectedItemProperty()
-                .addListener { _ , _, _->
-                    if (fileModel.item != null && fileModel.item.exists()) {
-                        val fragment = find<MarkdownPanelFragment>()
-                        if (!markdownViewStore.alreadyExistsFragment.contains(fragment)) {
-                            markdownViewStore.alreadyExistsFragment.add(fragment)
-                            fragment.openWindow(owner = null)
-                        }
+            setOnMouseClicked {
+                if (fileModel.item != null && fileModel.item.exists()) {
+                    val fragment = find<MarkdownPanelFragment>()
+                    if (!markdownViewStore.alreadyExistsFragment.contains(fragment)) {
+                        markdownViewStore.alreadyExistsFragment.add(fragment)
+                        fragment.openWindow(owner = null)
                     }
                 }
+            }
         }
     }
 }

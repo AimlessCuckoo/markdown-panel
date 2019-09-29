@@ -3,6 +3,7 @@ package red.medusa.markdownpanel.view
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.image.Image
+import javafx.scene.image.ImageView
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
@@ -13,7 +14,6 @@ import red.medusa.markdownpanel.view.Styles.Companion.WordHighlight
 import tornadofx.*
 import java.io.File
 import java.io.FileInputStream
-import java.io.IOException
 import java.net.URL
 import java.util.*
 import java.util.stream.Collectors
@@ -126,23 +126,26 @@ open class Segment : Pane() {
             else -> this.length / nestListLengthTimes
         }
 
-    fun getImage(url: String) = try {
-        if (url.trimStart().startsWith("http")) {
-            val image = URL(url).openStream()
-            imageview(Image(image))
-        } else {
-            MKData.mkFile?.resolve(File(url))?.canonicalFile?.apply {
-                if (this.exists() && this.isFile) {
-                    return imageview(Image(FileInputStream(this)))
+    fun ImageView.getImage(url: String) {
+        try {
+            if (url.trimStart().startsWith("http")) {
+                runAsync {
+                    val image = URL(url).openStream()
+                    this@getImage.image = Image(image)
+                }
+            } else {
+                MKData.mkFile?.resolve(File(url))?.canonicalFile?.apply {
+                    if (this.exists() && this.isFile) {
+                        this@getImage.image = Image(FileInputStream(this))
+                    }
                 }
             }
-            throw IOException("找不到图片")
-        }
-    } catch (e: Exception) {
-        imageview("data/markdown-file/img/load_error.jpg") {
-            tooltip("找不到图片")
+        } catch (e: Exception) {
+            this.image = Image("data/markdown-file/img/load_error.jpg")
+            this.tooltip("找不到图片")
         }
     }
+
 
     fun String.debug() {
         pt("Segment ${this@Segment.javaClass.simpleName} is loading ===>$this")
@@ -194,7 +197,7 @@ open class Segment : Pane() {
                     }
                 }
             }
-            DoubtfulType.IMAGE -> getImage(node.url!!)
+            DoubtfulType.IMAGE -> ImageView().apply { getImage(node.url!!) }
         }
     }
 
@@ -701,7 +704,7 @@ class ImageSegment : Segment() {
         return hbox {
             inlineText?.apply {
                 if (inlineText.imageUrl != null) {
-                    this@hbox.add(getImage(inlineText.imageUrl!!))
+                    this@hbox.add(ImageView().apply { this.getImage(inlineText.imageUrl!!) })
                 }
             }
         }
