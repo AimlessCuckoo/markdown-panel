@@ -29,7 +29,7 @@ class MarkdownFileListView : View() {
 
 ![alt](src/main/resources/data/markdown-file/img/3.png)
 
-# 与JavaFX集成
+# 与你自己的JavaFX应用集成
 #### MarkdownPanel与JavaFX集成非常简单,主要有两个步骤。
 - 第一步:准备markdown文件并将该文件注入MKFileModel
 - 第二步:获得MarkdownPanelFragment并得到它的ScrollPane

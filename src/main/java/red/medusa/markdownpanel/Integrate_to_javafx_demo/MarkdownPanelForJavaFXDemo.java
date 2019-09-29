@@ -77,7 +77,7 @@ public class MarkdownPanelForJavaFXDemo extends Application {
         window.show();
     }
 
-    private static final String TEXT = " MarkdownPanel与JavaFX集成非常简单,只需要两个步骤。\n\n" +
+    private static final String TEXT = " MarkdownPanel与你的JavaFX应用集成非常简单,只需要两个步骤。\n\n" +
             "第一步:第一步准备markdown文件并将该文件注入MKFileModel \n" +
             "第二步:获得MarkdownPanelFragment并得到它的ScrollPane";
 
