@@ -23,6 +23,7 @@ class Styles : Stylesheet() {
         val SixTitleSegment by cssclass()
         val OrderedSegment by cssclass()
         val ListPadding by cssclass()
+        val WordHighlight by cssclass()
 
         val ParagraphSegment by cssclass()
 
@@ -118,6 +119,13 @@ class Styles : Stylesheet() {
         boldItalics {
             fontWeight = FontWeight.BOLD
             fontStyle = FontPosture.ITALIC
+        }
+
+        WordHighlight{
+            backgroundColor+=c("23241f")
+            labelPadding = box(0.px,5.px)
+            borderRadius += box(5.px)
+            backgroundRadius += box(5.px)
         }
     }
 }

@@ -37,6 +37,7 @@ class MarkdownPanelParser {
 
             this[LinkSegment::class] = LinkSegment()
             this[ImageSegment::class] = ImageSegment()
+            this[LabelWordHighlightSegment::class] = LabelWordHighlightSegment()
         }
     }
 

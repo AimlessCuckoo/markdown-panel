@@ -2,7 +2,7 @@ package red.medusa.markdownpanel
 
 interface TagParse {
     fun parse(line: Line)
-    enum class InlineTagType(private val product: ViewLine) : TagParse {
+    enum class InlineTagType(private val product: MaterialLine) : TagParse {
         //图片
         IMAGE(ImageLine()),
         //链接
@@ -22,7 +22,7 @@ interface TagParse {
 
     }
 
-    enum class TagType(private val product: ViewLine) : TagParse {
+    enum class TagType(private val product: MaterialLine) : TagParse {
         BLANK(BlankLine()),
         LINEFEED(LinefeedLine()),
         // 标题
@@ -48,8 +48,11 @@ interface TagParse {
         CODE_AREA_1(CodeArea1Line()),
         CODE_AREA_2(CodeArea2Line()),
 
+        LABEL_WORLD(LabelWordHighlightLine()),
+
         // 段落
         PARAGRAPH(ParagraphLine());
+
 
         override fun parse(line: Line) {
             product.create(line)

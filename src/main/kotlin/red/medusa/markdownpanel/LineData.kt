@@ -5,12 +5,11 @@ import java.util.logging.Logger
 class LineData(datas: List<String>) {
     private val logger = Logger.getLogger(this.javaClass.name)
     lateinit var lines: Map<Int, Line>
-    private val defaultLine = Line(-1, "", isHandle = false, isLine = false)
+    private val defaultLine = Line(-1, "",  isLine = false)
     var line: Line = defaultLine
     var isRequireMultipleHandle = false
     var parseStrategy: ParseStrategy = ParseStrategy.DOUBLE_LINEFEED
     private var processLine: Int = -1
-    private var isFinished: Boolean = false
 
 
     init {
@@ -19,14 +18,6 @@ class LineData(datas: List<String>) {
 
     fun preNext() {
         this.line = lines.getOrDefault(++processLine, defaultLine)
-    }
-
-    fun makeHandle() {
-        line.isHandle = true
-    }
-
-    fun makeFinished() {
-        isFinished = true
     }
 
     fun hasMore(): Boolean = processLine < lines.size
@@ -50,8 +41,6 @@ class LineData(datas: List<String>) {
     // 获取上一次记录
     fun getLastLine() = lines.getOrDefault(processLine - 1, defaultLine)
 
-    // 获取前面没有被处理的记录
-    fun getNotHandleLastLines() = lines.values.toList().takeLastWhile { !it.isHandle }
 
     fun markStart(parseStrategy: ParseStrategy) {
         isRequireMultipleHandle = true

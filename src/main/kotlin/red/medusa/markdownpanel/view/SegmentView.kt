@@ -6,9 +6,10 @@ import javafx.scene.image.Image
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Pane
 import javafx.scene.layout.Priority
-import red.medusa.markdownpanel.Data
 import red.medusa.markdownpanel.InlineText
+import red.medusa.markdownpanel.MKData
 import red.medusa.markdownpanel.pt
+import red.medusa.markdownpanel.view.Styles.Companion.WordHighlight
 import tornadofx.*
 import java.io.File
 import java.io.FileInputStream
@@ -20,7 +21,7 @@ import java.util.stream.Stream
 
 
 enum class DoubtfulType {
-    LINK, IMAGE, TEXT, BOLD, ITALICS, BOLD_ITALICS
+    LINK, IMAGE, TEXT, BOLD, ITALICS, BOLD_ITALICS, LABEL_WORD
 }
 
 data class TagModel(
@@ -44,6 +45,8 @@ open class Segment : Pane() {
         val boldRegex = """(?:\*\*(.*)\*\*)|(?:__(.*)__)""".toRegex()
         // 斜体
         val italicsRegex = """(?:\*(.*)\*)|(?:_(.*)_)""".toRegex()
+        // 单词高亮
+        val labelWordRegex = """`([^`]+)`""".toRegex()
     }
 
     open fun getSegment(
@@ -128,7 +131,7 @@ open class Segment : Pane() {
             val image = URL(url).openStream()
             imageview(Image(image))
         } else {
-            Data.mkFile?.resolve(File(url))?.canonicalFile?.apply {
+            MKData.mkFile?.resolve(File(url))?.canonicalFile?.apply {
                 if (this.exists() && this.isFile) {
                     return imageview(Image(FileInputStream(this)))
                 }
@@ -175,9 +178,8 @@ open class Segment : Pane() {
         val title = node.name ?: ""
         return when (node.type) {
             DoubtfulType.TEXT -> return label(title)
-            DoubtfulType.BOLD_ITALICS -> return label(title) {
-                addClass(Styles.boldItalics)
-            }
+            DoubtfulType.LABEL_WORD -> return label(title) { addClass(Styles.WordHighlight) }
+            DoubtfulType.BOLD_ITALICS -> return label(title) { addClass(Styles.boldItalics) }
             DoubtfulType.BOLD -> return label(title) {
                 addClass(Styles.bold)
             }
@@ -201,34 +203,36 @@ open class Segment : Pane() {
             return null
         var tagModels = LinkedList<Any>()
         tagModels.add(this)
-        if (this.containsBoldWithItalics()) tagModels = parseForBoldAndItalics(tagModels)
-        if (this.containsBold()) tagModels = parseForBold(tagModels)
-        if (this.containsItalics()) tagModels = parseForItalics(tagModels)
         if (this.containsImage()) tagModels = parseForImage(tagModels)
         if (this.containsLink1()) tagModels = parseForLink(tagModels)
         if (this.containsLink2()) tagModels = parseForLink2(tagModels)
+        if (this.containsBoldWithItalics()) tagModels = parseForBoldAndItalics(tagModels)
+        if (this.containsBold()) tagModels = parseForBold(tagModels)
+        if (this.containsItalics()) tagModels = parseForItalics(tagModels)
+        if (this.containsWordHighlight()) tagModels = parseForWordHighlight(tagModels)
         return tagModels
     }
 
     fun parseMe2(text: String): LinkedList<Any> {
         var tagModels = LinkedList<Any>()
         tagModels.add(text)
-        if (text.containsBoldWithItalics()) tagModels = parseForBoldAndItalics(tagModels)
-        if (text.containsBold()) tagModels = parseForBold(tagModels)
-        if (text.containsItalics()) tagModels = parseForItalics(tagModels)
         if (text.containsImage()) tagModels = parseForImage(tagModels)
         if (text.containsLink1()) tagModels = parseForLink(tagModels)
         if (text.containsLink2()) tagModels = parseForLink2(tagModels)
+        if (text.containsBoldWithItalics()) tagModels = parseForBoldAndItalics(tagModels)
+        if (text.containsBold()) tagModels = parseForBold(tagModels)
+        if (text.containsItalics()) tagModels = parseForItalics(tagModels)
+        if (text.containsWordHighlight()) tagModels = parseForWordHighlight(tagModels)
         return tagModels
     }
 
+    private fun String.containsWordHighlight() = contains(labelWordRegex)
     private fun String.containsImage() = contains(imageRegex)
     private fun String.containsLink1() = contains(linkRegex)
     private fun String.containsLink2() = contains(linkRegex2)
     private fun String.containsItalics() = contains(italicsRegex)
     private fun String.containsBold() = contains(boldRegex)
     private fun String.containsBoldWithItalics() = contains(boldItalicsRegex)
-
 
     fun parseForImage(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
@@ -313,6 +317,19 @@ open class Segment : Pane() {
         return contents.flatMap()
     }
 
+    fun parseForWordHighlight(contents: MutableList<Any>): LinkedList<Any> {
+        contents.forEachIndexed { i, strWithNode ->
+            if (strWithNode is String) {
+                val stringWithNodes = createTagModels(strWithNode, labelWordRegex) {
+                    var title = it.destructured.component1()
+                    TagModel(it.range, title, null, DoubtfulType.LABEL_WORD)
+                }
+                contents[i] = stringWithNodes
+            }
+        }
+        return contents.flatMap()
+    }
+
     fun parseForBold(contents: MutableList<Any>): LinkedList<Any> {
         contents.forEachIndexed { i, strWithNode ->
             if (strWithNode is String) {
@@ -358,8 +375,6 @@ open class Segment : Pane() {
         }
         return contents.flatMap()
     }
-
-
 }
 
 class OneTitleSegment : Segment() {
@@ -587,6 +602,25 @@ class ParagraphSegment : Segment() {
         return str.getInlineBlock().apply {
             alignment = Pos.BASELINE_LEFT
             addClass(Styles.ParagraphSegment)
+        }
+
+    }
+
+}
+
+class LabelWordHighlightSegment : Segment() {
+    override fun getSegment(
+        str: String,
+        prefix: String?,
+        postfix: String?,
+        lineNumber: Int?,
+        inlineText: InlineText?
+    ): Pane? {
+        str.debug()
+        return vbox {
+            label(str).apply {
+                addClass(WordHighlight)
+            }
         }
 
     }

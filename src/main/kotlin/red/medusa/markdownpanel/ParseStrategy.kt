@@ -101,13 +101,7 @@ enum class ParseStrategy {
     },
     THREE_PMS {
         override fun lookFor(lineData: LineData) {
-            if (ThreePMSRegex.containsMatchIn(
-                    lineData.line.text.replace(
-                        "\\s".toRegex(),
-                        ""
-                    )
-                )
-            ) {
+            if (ThreePMSRegex.containsMatchIn(lineData.line.text.replace("\\s".toRegex(), ""))) {
                 lineData.makeUp(TagParse.TagType.SEPARATOR)
                 lineData.clean()
                 lineData.log(TagParse.TagType.SEPARATOR.name)
@@ -148,7 +142,16 @@ enum class ParseStrategy {
                 lineData.clean()
                 lineData.makeUp(TagParse.InlineTagType.LINK)
                 lineData.log(TagParse.InlineTagType.LINK.name)
-            } else PARAGRAPH.lookFor(lineData)
+            } else LABEL_WORLD.lookFor(lineData)
+        }
+    },
+    LABEL_WORLD {
+        override fun lookFor(lineData: LineData) {
+            if (labelWorldRegex.containsMatchIn(lineData.line.text)) {
+                lineData.makeUp(TagParse.TagType.LABEL_WORLD)
+                lineData.clean()
+                lineData.log("+ -> ${TagParse.TagType.LABEL_WORLD}")
+            }else PARAGRAPH.lookFor(lineData)
         }
     },
     PARAGRAPH {
@@ -171,6 +174,7 @@ enum class ParseStrategy {
         val orderedListRegex = Regex("""^(\d+\.)+ (.*)""")
         val ThreePMSRegex = Regex("""(^\*{3,}$)|(^\+{3,}$)|(^-{3,}$)""")
         val unorderedListRegex = Regex("""^[-+*]\s""")
+        val labelWorldRegex = Regex("""^\s*`[^`]+`\s*$""")
         val bracketRegex = Regex("""^\s*\[(?!alt)([^]]*)]\(([^)]+)\)\s*$""")
         val exclamationBracketRegex = Regex("""^\s*!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)\s*$""")
         val angleBracketsRegex = Regex("""\s*^<.+>$""")
@@ -189,8 +193,7 @@ enum class ParseStrategy {
                 this.getLastLine().tagParse == TagParse.TagType.NEST_UNSORTED_LIST ||
                 this.getLastLine().tagParse == TagParse.TagType.NEST_ORDERED_LIST
 
-    fun LineData.log(parse: String) =
-        logger.i("find pre parse $parse -> [ ${this.line.number} ] : [ ${this.line.text} ]")
+    fun LineData.log(parse: String) = pt("find pre parse $parse -> [ ${this.line.number} ] : [ ${this.line.text} ]")
 
     abstract fun lookFor(lineData: LineData)
 }

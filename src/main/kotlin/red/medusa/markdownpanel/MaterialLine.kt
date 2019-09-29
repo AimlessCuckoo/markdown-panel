@@ -2,13 +2,13 @@ package red.medusa.markdownpanel
 
 import red.medusa.markdownpanel.view.*
 
-interface ViewLine {
+interface MaterialLine {
     fun create(line: Line) {
         pt("${this.javaClass.simpleName} is loading - [${line.number}] : [ ${line.text} ]")
     }
 }
 
-class TitleLine : ViewLine {
+class TitleLine : MaterialLine {
     override fun create(line: Line) {
         val text = line.text.trimStart()
         when {
@@ -23,7 +23,7 @@ class TitleLine : ViewLine {
 }
 
 
-class OneTitleLine : ViewLine {
+class OneTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("#").trimStart()
@@ -31,7 +31,7 @@ class OneTitleLine : ViewLine {
     }
 }
 
-class TowTitleLine : ViewLine {
+class TowTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("##").trimStart()
@@ -39,7 +39,7 @@ class TowTitleLine : ViewLine {
     }
 }
 
-class ThreeTitleLine : ViewLine {
+class ThreeTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("###").trimStart()
@@ -47,7 +47,7 @@ class ThreeTitleLine : ViewLine {
     }
 }
 
-class FourTitleLine : ViewLine {
+class FourTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("####").trimStart()
@@ -55,7 +55,7 @@ class FourTitleLine : ViewLine {
     }
 }
 
-class FiveTitleLine : ViewLine {
+class FiveTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("#####").trimStart()
@@ -63,7 +63,7 @@ class FiveTitleLine : ViewLine {
     }
 }
 
-class SixTitleLine : ViewLine {
+class SixTitleLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.trimStart().removePrefix("######").trimStart()
@@ -72,28 +72,28 @@ class SixTitleLine : ViewLine {
     }
 }
 
-class BlankLine : ViewLine {
+class BlankLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.segmentView = BlankSegment::class
     }
 }
 
-class LinefeedLine : ViewLine {
+class LinefeedLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.segmentView = LinefeedSegment::class
     }
 }
 
-class SeparatorLine : ViewLine {
+class SeparatorLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.segmentView = SeparatorSegment::class
     }
 }
 
-class OrderedListLine : ViewLine {
+class OrderedListLine : MaterialLine {
     private val regex = """^(\d+\.)+ (.*)""".toRegex()
     override fun create(line: Line) {
         super.create(line)
@@ -105,7 +105,7 @@ class OrderedListLine : ViewLine {
 
     }
 }
-class UnOrderedListLine : ViewLine {
+class UnOrderedListLine : MaterialLine {
     private val regex = """^[-+*] (.*)""".toRegex()
     override fun create(line: Line) {
         regex.find(line.text)?.groupValues.apply {
@@ -116,7 +116,7 @@ class UnOrderedListLine : ViewLine {
     }
 }
 
-class NestUnOrderedListLine : ViewLine {
+class NestUnOrderedListLine : MaterialLine {
     private val regex = Regex("""^((?:\s{4}|\t)+)([-+*])\s(.*)$""")
     override fun create(line: Line) {
         super.create(line)
@@ -128,7 +128,7 @@ class NestUnOrderedListLine : ViewLine {
         println()
     }
 }
-class NestOrderedListLine : ViewLine {
+class NestOrderedListLine : MaterialLine {
     private val regex = """^((?:\s{4}|\t)+)((\d+\.)+)\s(.*)$""".toRegex()
     override fun create(line: Line) {
         super.create(line)
@@ -142,7 +142,7 @@ class NestOrderedListLine : ViewLine {
     }
 }
 
-class CodeArea1Line : ViewLine {
+class CodeArea1Line : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.text = line.text.replace("^[ ]{4}|\t".toRegex(), "")
@@ -150,22 +150,33 @@ class CodeArea1Line : ViewLine {
     }
 }
 
-class CodeArea2Line : ViewLine {
+class CodeArea2Line : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.segmentView = CodeArea2Segment::class
     }
 }
 
-class ParagraphLine : ViewLine {
+class ParagraphLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         line.segmentView = ParagraphSegment::class
     }
 }
 
+class LabelWordHighlightLine : MaterialLine {
+    private val regex = """^\s*`([^`]+)`\s*$""".toRegex()
+    override fun create(line: Line) {
+        super.create(line)
+        regex.find(line.text)?.destructured?.apply {
+            line.text = this.component1()
+            line.segmentView = LabelWordHighlightSegment::class
+        }
+    }
+}
 
-class ImageLine : ViewLine {
+
+class ImageLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
         val regex = Regex("""^\s*!\[(alt(.*))?]\(((?:.(?!"))+?)(\s*\s"(.*?)"\s*)?\)\s*$""")
@@ -180,7 +191,7 @@ class ImageLine : ViewLine {
 }
 
 
-class LinkLine : ViewLine {
+class LinkLine : MaterialLine {
     // 选择解析方式
     private val preRegex = """\s*^\[""".toRegex()
 
@@ -217,21 +228,21 @@ class LinkLine : ViewLine {
     }
 }
 
-class ItalicsLine : ViewLine {
+class ItalicsLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
 
     }
 }
 
-class BoldLine : ViewLine {
+class BoldLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
 
     }
 }
 
-class BoldItalicsLine : ViewLine {
+class BoldItalicsLine : MaterialLine {
     override fun create(line: Line) {
         super.create(line)
     }

@@ -1,6 +1,5 @@
 package red.medusa.markdownpanel.app
 
-import red.medusa.markdownpanel.Profile
 import red.medusa.markdownpanel.view.MarkdownFileListView
 import tornadofx.App
 import tornadofx.launch
@@ -15,6 +14,6 @@ class MyApp : App(MarkdownFileListView::class) {
 
 fun main() {
 //    关闭调试信息
-    Profile.TEST = false
+//    Profile.TEST = true
     launch<MyApp>()
 }

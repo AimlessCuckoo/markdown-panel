@@ -43,8 +43,8 @@ class MarkdownFileListView : View() {
 # API
 
 ```kotlin
-val filePath = Data::class.java.classLoader.getResource("data/markdown-file/mk/A.md")?.file
-val data = Data(File(filePath))
+val filePath = MKData::class.java.classLoader.getResource("data/markdown-file/mk/A.md")?.file
+val data = MKData(File(filePath))
 
     data
         .prepared()         // 准备数据

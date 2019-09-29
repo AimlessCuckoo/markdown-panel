@@ -19,6 +19,5 @@ data class Line(
     var postfix: String? = null,
     var tagParse: TagParse = TagParse.TagType.PARAGRAPH,         // 默认解析成段落
     var segmentView: KClass<out Segment> = ParagraphSegment::class,        // 解析成段落的具体实现类
-    var isHandle: Boolean = false,
     var isLine: Boolean = true
 )

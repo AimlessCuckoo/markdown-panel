@@ -63,6 +63,11 @@ class InlineTest {
         println()
     }
 
+    @Test
+    fun testLabelWord(){
+        val labelWordRegex = """`([^`]+)`""".toRegex()
+        println(labelWordRegex.containsMatchIn("```"))
+    }
 }
 
 

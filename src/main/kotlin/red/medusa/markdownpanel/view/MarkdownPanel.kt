@@ -3,17 +3,21 @@ package red.medusa.markdownpanel.view
 import javafx.geometry.Insets
 import javafx.scene.Parent
 import javafx.scene.layout.VBox
-import red.medusa.markdownpanel.Data
+import red.medusa.markdownpanel.MKData
 import red.medusa.markdownpanel.app.MyApp.Companion.HEIGHT
 import red.medusa.markdownpanel.app.MyApp.Companion.WIDTH
+import red.medusa.markdownpanel.controller.MarkdownViewStore
 import red.medusa.markdownpanel.model.MKFileModel
 import red.medusa.markdownpanel.service.MarkdownPanelParser
 import tornadofx.*
 
 class MarkdownPanelFragment : Fragment() {
+
+    private val markdownViewStore: MarkdownViewStore by inject()
+
     override val root: Parent
     private val fileModel: MKFileModel by inject()
-    private val mkContent = Data(fileModel.item)
+    private val mkContent = MKData(fileModel.item)
     private val parser = MarkdownPanelParser()
 
     init {
@@ -71,5 +75,9 @@ class MarkdownPanelFragment : Fragment() {
         this.subscribe<OpenWindowForHyperlink> { event ->
             hostServices.showDocument(event.url)
         }
+    }
+
+    override fun onUndock() {
+        markdownViewStore.alreadyExistsFragment.remove(this)
     }
 }
