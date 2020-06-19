@@ -23,11 +23,11 @@ class MarkdownFileListView : View() {
 ```
 ---
 
-![输入图片说明](https://images.gitee.com/uploads/images/2020/0618/225954_c7239189_1013340.png "1.png")
+![点击预览](https://images.gitee.com/uploads/images/2020/0618/225954_c7239189_1013340.png "1.png")
 
-![输入图片说明](https://images.gitee.com/uploads/images/2020/0618/230012_64622fa2_1013340.png "2.png")
+![点击预览](https://images.gitee.com/uploads/images/2020/0618/230012_64622fa2_1013340.png "2.png")
 
-![输入图片说明](https://images.gitee.com/uploads/images/2020/0618/230020_2176a9b3_1013340.png "3.png")
+![点击预览](https://images.gitee.com/uploads/images/2020/0618/230020_2176a9b3_1013340.png "3.png")
 
 # 与你自己的JavaFX应用集成
 #### MarkdownPanel与JavaFX集成非常简单,主要有两个步骤。
@@ -38,7 +38,7 @@ class MarkdownFileListView : View() {
 示例代码参考: [MarkdownPanelForJavaFXDemo.java](src/main/java/red/medusa/markdownpanel/Integrate_to_javafx_demo/MarkdownPanelForJavaFXDemo.java)
 
 
-![输入图片说明](https://images.gitee.com/uploads/images/2020/0618/230031_ae558f6a_1013340.png "4.png")
+![点击预览](https://images.gitee.com/uploads/images/2020/0618/230031_ae558f6a_1013340.png "4.png")
 
 
 # 构建过程
